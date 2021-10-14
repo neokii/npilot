@@ -342,7 +342,6 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
 
   //add visual radar relative speed
   if (UI_FEATURE_LEFT_REL_SPEED) {
-
     auto radar_state = (*s->sm)["radarState"].getRadarState();
     auto lead_one = radar_state.getLeadOne();
 
@@ -440,7 +439,6 @@ static void bb_ui_draw_measures_left(UIState *s, int bb_x, int bb_y, int bb_w ) 
     bb_ry = bb_y + bb_h;
   }
 
-
   //finally draw the frame
   bb_h += 40;
   nvgBeginPath(s->vg);
@@ -501,7 +499,6 @@ static void bb_ui_draw_measures_right(UIState *s, int bb_x, int bb_y, int bb_w )
 
    // add ambient temperature
   if (UI_FEATURE_RIGHT_AMBIENT_TEMP) {
-
     char val_str[16];
     char uom_str[6];
     NVGcolor val_color = nvgRGBA(255, 255, 255, 200);
@@ -616,8 +613,7 @@ static void bb_ui_draw_measures_right(UIState *s, int bb_x, int bb_y, int bb_w )
   nvgStroke(s->vg);
 }
 
-static void bb_ui_draw_basic_info(UIState *s)
-{
+static void bb_ui_draw_basic_info(UIState *s) {
     const UIScene *scene = &s->scene;
     char str[1024];
     std::string sccLogMessage = "";
@@ -660,8 +656,7 @@ static void bb_ui_draw_basic_info(UIState *s)
     ui_draw_text(s, x, y, str, 20 * 2.5, COLOR_WHITE_ALPHA(200), "sans-semibold");
 }
 
-static void bb_ui_draw_debug(UIState *s)
-{
+static void bb_ui_draw_debug(UIState *s) {
     const UIScene *scene = &s->scene;
     char str[1024];
 
@@ -747,9 +742,7 @@ static void bb_ui_draw_debug(UIState *s)
     ui_draw_text(s, text_x, y, str, 22 * 2.5, textColor, "sans-regular");
 }
 
-
-static void bb_ui_draw_UI(UIState *s)
-{
+static void bb_ui_draw_UI(UIState *s) {
   const int bb_dml_w = 180;
   const int bb_dml_x = bdr_is * 2;
   const int bb_dml_y = (box_y + (bdr_is * 1.5)) + UI_FEATURE_LEFT_Y;
@@ -813,7 +806,6 @@ static void ui_draw_vision_scc_gap(UIState *s) {
 
   ui_draw_text(s, center_x, center_y-36, "GAP", 22 * 2.5f, nvgRGBA(255, 255, 255, 200), "sans-bold");
   ui_draw_text(s, center_x, center_y+22, str, textSize * 2.5f, textColor, "sans-bold");
-
 }
 
 static void ui_draw_vision_brake(UIState *s) {
@@ -852,7 +844,6 @@ static void ui_draw_vision_autohold(UIState *s) {
 }
 
 static void ui_draw_vision_maxspeed(UIState *s) {
-
   // scc smoother
   cereal::CarControl::SccSmoother::Reader scc_smoother = s->scene.car_control.getSccSmoother();
   bool longControl = scc_smoother.getLongControl();
@@ -870,26 +861,22 @@ static void ui_draw_vision_maxspeed(UIState *s) {
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
   const int text_x = rect.centerX();
 
-  if(is_cruise_set)
-  {
+  if (is_cruise_set) {
     char str[256];
-
-    if(s->scene.is_metric)
+    if (s->scene.is_metric)
         snprintf(str, sizeof(str), "%d", (int)(applyMaxSpeed + 0.5));
     else
         snprintf(str, sizeof(str), "%d", (int)(applyMaxSpeed*0.621371 + 0.5));
 
     ui_draw_text(s, text_x, 100, str, 33 * 2.5, COLOR_WHITE, "sans-semibold");
 
-    if(s->scene.is_metric)
+    if (s->scene.is_metric)
         snprintf(str, sizeof(str), "%d", (int)(cruiseMaxSpeed + 0.5));
     else
         snprintf(str, sizeof(str), "%d", (int)(cruiseMaxSpeed*0.621371 + 0.5));
 
     ui_draw_text(s, text_x, 195, str, 48 * 2.5, COLOR_WHITE, "sans-bold");
-  }
-  else
-  {
+  } else {
     if(longControl)
         ui_draw_text(s, text_x, 100, "OP", 25 * 2.5, COLOR_WHITE_ALPHA(100), "sans-semibold");
     else
@@ -1029,17 +1016,14 @@ void ui_nvg_init(UIState *s) {
   std::vector<std::pair<const char *, const char *>> images = {
     {"wheel", "../assets/img_chffr_wheel.png"},
     {"driver_face", "../assets/img_driver_face.png"},
-
-	{"brake", "../assets/img_brake_disc.png"},
-	{"autohold_warning", "../assets/img_autohold_warning.png"},
-	{"autohold_active", "../assets/img_autohold_active.png"},
-	{"img_nda", "../assets/img_nda.png"},
-	{"img_hda", "../assets/img_hda.png"},
-
-	{"custom_lead_vision", "../assets/images/custom_lead_vision.png"},
-	{"custom_lead_radar", "../assets/images/custom_lead_radar.png"},
-
-	{"tire_pressure", "../assets/images/img_tire_pressure.png"},
+    {"brake", "../assets/img_brake_disc.png"},
+    {"autohold_warning", "../assets/img_autohold_warning.png"},
+    {"autohold_active", "../assets/img_autohold_active.png"},
+    {"img_nda", "../assets/img_nda.png"},
+    {"img_hda", "../assets/img_hda.png"},
+    {"custom_lead_vision", "../assets/images/custom_lead_vision.png"},
+    {"custom_lead_radar", "../assets/images/custom_lead_radar.png"},
+    {"tire_pressure", "../assets/images/img_tire_pressure.png"},
   };
   for (auto [name, file] : images) {
     s->images[name] = nvgCreateImage(s->vg, file, 1);
