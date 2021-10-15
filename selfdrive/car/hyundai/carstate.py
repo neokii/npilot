@@ -76,7 +76,7 @@ class CarState(CarStateBase):
 
     ret.cluSpeedMs = cluSpeed * self.speed_conv_to_ms
 
-    if not self.use_cluster_speed or self.long_control_enabled:
+    if not self.use_cluster_speed:
       ret.wheelSpeeds.fl = cp.vl["WHL_SPD11"]["WHL_SPD_FL"] * CV.KPH_TO_MS
       ret.wheelSpeeds.fr = cp.vl["WHL_SPD11"]["WHL_SPD_FR"] * CV.KPH_TO_MS
       ret.wheelSpeeds.rl = cp.vl["WHL_SPD11"]["WHL_SPD_RL"] * CV.KPH_TO_MS
