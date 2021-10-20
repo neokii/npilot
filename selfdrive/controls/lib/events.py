@@ -294,7 +294,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
   EventName.startupNoFw: {
     ET.PERMANENT: Alert(
       "Car Unrecognized",
-      "Check All Connections",
+      "Choose your car in community settings.",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 10.),
   },
@@ -333,7 +333,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
   EventName.carUnrecognized: {
     ET.PERMANENT: Alert(
       "Dashcam Mode",
-      "Car Unrecognized",
+      "Choose your car in community settings.",
       AlertStatus.normal, AlertSize.mid,
       Priority.LOWEST, VisualAlert.none, AudibleAlert.none, 0., 0., .2),
   },
