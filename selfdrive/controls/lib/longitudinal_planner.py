@@ -73,7 +73,7 @@ class Planner():
     #  cluSpeedMs = sm['carState'].cluSpeedMs
     #  if v_ego > 3. and cluSpeedMs > 3.:
     #    v_cruise *= v_ego / cluSpeedMs
-    #    v_cruise = int(v_cruise * CV.MS_TO_KPH + .3) * CV.KPH_TO_MS
+    #    v_cruise = int(v_cruise * CV.MS_TO_KPH) * CV.KPH_TO_MS
 
     long_control_state = sm['controlsState'].longControlState
     force_slow_decel = sm['controlsState'].forceDecel
