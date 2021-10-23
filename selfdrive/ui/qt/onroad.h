@@ -34,7 +34,6 @@ class NvgWindow : public CameraViewWidget {
 
 public:
   explicit NvgWindow(VisionStreamType type, QWidget* parent = 0) : CameraViewWidget(type, true, parent) {}
-  void updateState(const UIState &s);
 
 #ifdef QCOM2
   ScreenRecoder* recorder;
