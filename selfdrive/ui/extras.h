@@ -7,6 +7,7 @@
 #pragma once
 
 #include <vector>
+#include <utility>
 
 class ATextItem {
   public:
@@ -22,8 +23,7 @@ class ATextItem {
 class AText {
   private:
     std::string font_name;
-
-    std::vector<ATextItem> after_items;
+    std::vector<ATextItem> items;
     std::string last_text;
 
   public:
@@ -34,21 +34,21 @@ class AText {
 
     void update(const UIState *s, float x, float y, const char *string, int size, NVGcolor color) {
       if(last_text != string) {
-        after_items.insert(after_items.begin(), ATextItem(string, 255));
+        this->items.insert(this->items.begin(), std::move(ATextItem(string, 255)));
         last_text = string;
       }
 
-      for(auto it = after_items.begin() + 1; it != after_items.end();)  {
+      for(auto it = this->items.begin() + 1; it != this->items.end();)  {
         it->alpha -= 1000 / UI_FREQ;
         if(it->alpha <= 0)
-          it = after_items.erase(it);
+          it = this->items.erase(it);
         else
           it++;
       }
 
       nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
 
-      for(auto it = after_items.rbegin(); it != after_items.rend(); ++it)  {
+      for(auto it = this->items.rbegin(); it != this->items.rend(); ++it)  {
         color.a = it->alpha/255.f;
         ui_draw_text(s, x, y, it->text.c_str(), size, color, this->font_name.c_str());
       }
