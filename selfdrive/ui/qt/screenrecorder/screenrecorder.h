@@ -5,8 +5,11 @@
 #include <QPainter>
 #include <QPushButton>
 #include <QSoundEffect>
+#include <thread>
+#include <chrono>
 
 #include "omx_encoder.h"
+#include "blocking_queue.h"
 #include "selfdrive/ui/ui.h"
 
 class ScreenRecoder : public QPushButton {
@@ -16,7 +19,6 @@ public:
   ScreenRecoder(QWidget *parent = 0);
   virtual ~ScreenRecoder();
 
-  void ui_draw(UIState *s, int w, int h);
 public slots:
     void btnReleased(void);
     void btnPressed(void);
@@ -33,6 +35,9 @@ private:
     std::unique_ptr<uint8_t[]> rgb_buffer;
     std::unique_ptr<uint8_t[]> rgb_scale_buffer;
 
+    std::thread encoding_thread;
+    BlockingQueue<QImage> image_queue;
+
     QColor recording_color;
     int frame;
 
@@ -42,10 +47,12 @@ private:
     void applyColor();
     void openEncoder(const char* filename);
     void closeEncoder();
+    void encoding_thread_func();
 
 public:
     void start(bool sound);
     void stop(bool sound);
     void toggle();
+    void update_screen();
 
 };

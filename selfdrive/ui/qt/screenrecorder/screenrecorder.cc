@@ -21,7 +21,7 @@ static long long milliseconds(void) {
     return (((long long)tv.tv_sec)*1000)+(tv.tv_usec/1000);
 }
 
-ScreenRecoder::ScreenRecoder(QWidget *parent) : QPushButton(parent) {
+ScreenRecoder::ScreenRecoder(QWidget *parent) : QPushButton(parent), image_queue(30) {
 
     recording = false;
     started = 0;
@@ -43,9 +43,6 @@ ScreenRecoder::ScreenRecoder(QWidget *parent) : QPushButton(parent) {
         path = "/storage/emulated/0/videos";
         src_width = 1920;
     }
-
-    src_width -= bdr_s * 2;
-    src_height -= bdr_s * 2;
 
     dst_height = 720;
     dst_width = src_width * dst_height / src_height;
@@ -112,86 +109,97 @@ void ScreenRecoder::openEncoder(const char* filename) {
 }
 
 void ScreenRecoder::closeEncoder() {
-    if(encoder)
-        encoder->encoder_close();
+  if(encoder)
+      encoder->encoder_close();
 }
 
 void ScreenRecoder::toggle() {
 
-    if(!recording)
-        start(true);
-    else
-        stop(true);
+  if(!recording)
+      start(true);
+  else
+      stop(true);
 }
 
 void ScreenRecoder::start(bool sound) {
 
-    if(recording)
-      return;
+  if(recording)
+    return;
 
-    char filename[64];
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
-    snprintf(filename,sizeof(filename),"%04d%02d%02d-%02d%02d%02d.mp4", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+  char filename[64];
+  time_t t = time(NULL);
+  struct tm tm = *localtime(&t);
+  snprintf(filename,sizeof(filename),"%04d%02d%02d-%02d%02d%02d.mp4", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 
-    openEncoder(filename);
-    recording = true;
-    frame = 0;
-    update();
+  openEncoder(filename);
+  recording = true;
+  frame = 0;
 
-    started = milliseconds();
+  encoding_thread = std::thread([=] { encoding_thread_func(); });
 
-    if(sound)
-        soundStart.play();
+  update();
+
+  started = milliseconds();
+
+  if(sound)
+      soundStart.play();
+}
+
+void ScreenRecoder::encoding_thread_func() {
+
+  while(recording && encoder) {
+    QImage popImage;
+    if(image_queue.pop_wait_for(popImage, std::chrono::milliseconds(10))) {
+
+      QImage image = popImage.convertToFormat(QImage::Format_RGBA8888);
+
+      libyuv::ARGBScale(image.bits(), image.width()*4,
+            image.width(), image.height(),
+            rgb_scale_buffer.get(), dst_width*4,
+            dst_width, dst_height,
+            libyuv::kFilterBilinear);
+
+      encoder->encode_frame_rgba(rgb_scale_buffer.get(), dst_width, dst_height, (uint64_t)nanos_since_boot());
+    }
+  }
 }
 
 void ScreenRecoder::stop(bool sound) {
 
-    if(recording) {
-      closeEncoder();
-      recording = false;
-      update();
+  if(recording) {
+    closeEncoder();
+    recording = false;
+    update();
 
-      if(sound)
-          soundStop.play();
-    }
+    if(sound)
+      soundStop.play();
+
+    image_queue.clear();
+
+    if(encoding_thread.joinable())
+      encoding_thread.join();
+  }
 }
 
-void ScreenRecoder::ui_draw(UIState *s, int w, int h) {
+void ScreenRecoder::update_screen() {
 
-    if(recording && encoder) {
+  if(recording && encoder) {
 
-        if(milliseconds() - started > 1000*60*3) {
-            stop(false);
-            start(false);
-            return;
-        }
-
-        applyColor();
-
-        int src_w = std::min(src_width, w);
-        int src_h = std::min(src_height, h);
-
-        glReadPixels(0, 0, src_w, src_h, GL_RGBA, GL_UNSIGNED_BYTE, rgb_buffer.get());
-
-        libyuv::ARGBScale(rgb_buffer.get(), src_w*4,
-              src_w, src_h,
-              rgb_scale_buffer.get(), dst_width*4,
-              dst_width, dst_height,
-              libyuv::kFilterBilinear);
-
-        const uint8_t* src = rgb_scale_buffer.get();
-        const uint8_t* dst = rgb_buffer.get();
-
-        int bytes_per_line = dst_width*4;
-        for (int i = 0; i < dst_height; i++) {
-            memcpy((void*)(dst + bytes_per_line * i),
-                   (void*)(src + bytes_per_line * (dst_height - i - 1)),
-                   bytes_per_line);
-        }
-
-        encoder->encode_frame_rgba(dst, dst_width, dst_height, (uint64_t)nanos_since_boot());
+    if(milliseconds() - started > 1000*60*3) {
+      stop(false);
+      start(false);
+      return;
     }
 
-    frame++;
+    applyColor();
+
+    QWidget* widget = this;
+    while (widget->parentWidget() != Q_NULLPTR)
+      widget = widget->parentWidget();
+
+    QPixmap pixmap = widget->grab();
+    image_queue.push(pixmap.toImage());
+  }
+
+  frame++;
 }

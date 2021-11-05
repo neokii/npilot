@@ -41,6 +41,14 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
 
 #ifdef QCOM2
   // screen recoder - neokii
+
+  record_timer = std::make_shared<QTimer>();
+	QObject::connect(record_timer.get(), &QTimer::timeout, [=]() {
+    if(recorder)
+      recorder->update_screen();
+  });
+	record_timer->start(1000/UI_FREQ);
+
   QWidget* recorder_widget = new QWidget(this);
   QVBoxLayout * recorder_layout = new QVBoxLayout (recorder_widget);
   recorder_layout->setMargin(35);
@@ -265,11 +273,6 @@ void NvgWindow::initializeGL() {
 void NvgWindow::paintGL() {
   CameraViewWidget::paintGL();
   ui_draw(&QUIState::ui_state, width(), height());
-
-#ifdef QCOM2
-  if(recorder)
-    recorder->ui_draw(&QUIState::ui_state, width(), height());
-#endif
 
   double cur_draw_t = millis_since_boot();
   double dt = cur_draw_t - prev_draw_t;

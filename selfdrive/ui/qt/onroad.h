@@ -7,6 +7,7 @@
 #include "selfdrive/ui/ui.h"
 
 #ifdef QCOM2
+#include <QTimer>
 #include "selfdrive/ui/qt/screenrecorder/screenrecorder.h"
 #endif
 
@@ -69,6 +70,7 @@ private:
 #ifdef QCOM2
 private:
   ScreenRecoder* recorder;
+  std::shared_ptr<QTimer> record_timer;
   QPoint startPos;
 #endif
 
