@@ -866,14 +866,14 @@ static void ui_draw_vision_maxspeed(UIState *s) {
     if (s->scene.is_metric)
         snprintf(str, sizeof(str), "%d", (int)(applyMaxSpeed + 0.5));
     else
-        snprintf(str, sizeof(str), "%d", (int)(applyMaxSpeed*0.621371 + 0.5));
+        snprintf(str, sizeof(str), "%d", (int)(applyMaxSpeed*KM_TO_MILE + 0.5));
 
     ui_draw_text(s, text_x, 100, str, 33 * 2.5, COLOR_WHITE, "sans-semibold");
 
     if (s->scene.is_metric)
         snprintf(str, sizeof(str), "%d", (int)(cruiseMaxSpeed + 0.5));
     else
-        snprintf(str, sizeof(str), "%d", (int)(cruiseMaxSpeed*0.621371 + 0.5));
+        snprintf(str, sizeof(str), "%d", (int)(cruiseMaxSpeed*KM_TO_MILE + 0.5));
 
     ui_draw_text(s, text_x, 195, str, 48 * 2.5, COLOR_WHITE, "sans-bold");
   } else {
@@ -889,7 +889,7 @@ static void ui_draw_vision_maxspeed(UIState *s) {
 AText textSpeed("sans-bold");
 
 static void ui_draw_vision_speed(UIState *s) {
-  const float speed = std::max(0.0, (*s->sm)["carState"].getCarState().getCluSpeedMs() * (s->scene.is_metric ? 3.6 : 2.2369363));
+  const float speed = std::max(0.0, (*s->sm)["carState"].getCarState().getCluSpeedMs() * (s->scene.is_metric ? MS_TO_KPH : MS_TO_MPH));
   const std::string speed_str = std::to_string((int)std::nearbyint(speed));
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
 
