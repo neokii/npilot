@@ -164,7 +164,7 @@ class ImmediateDisableAlert(Alert):
     super().__init__(alert_text_1, alert_text_2,
                      AlertStatus.critical, AlertSize.full,
                      Priority.HIGHEST, VisualAlert.steerRequired,
-                     AudibleAlert.chimeWarningRepeat, 2.2, 3., 4.),
+                     AudibleAlert.chimeWarningRepeatInfinite, 2.2, 3., 4.),
 
 
 class EngagementAlert(Alert):
@@ -358,7 +358,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       "BRAKE!",
       "Risk of Collision",
       AlertStatus.critical, AlertSize.full,
-      Priority.HIGHEST, VisualAlert.fcw, AudibleAlert.chimeWarningRepeat, 1., 2., 2.),
+      Priority.HIGHEST, VisualAlert.fcw, AudibleAlert.chimeWarningRepeatInfinite, 1., 2., 2.),
   },
 
   EventName.ldw: {
@@ -418,7 +418,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       "KEEP EYES ON ROAD",
       "Driver Distracted",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.MID, VisualAlert.steerRequired, AudibleAlert.chimeWarning2Repeat, .1, .1, .1),
+      Priority.MID, VisualAlert.steerRequired, AudibleAlert.chimeWarning2RepeatInfinite, .1, .1, .1),
   },
 
   EventName.driverDistracted: {
@@ -426,7 +426,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       "DISENGAGE IMMEDIATELY",
       "Driver Distracted",
       AlertStatus.critical, AlertSize.full,
-      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.chimeWarningRepeat, .1, .1, .1),
+      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.chimeWarningRepeatInfinite, .1, .1, .1),
   },
 
   EventName.preDriverUnresponsive: {
@@ -442,7 +442,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       "TOUCH STEERING WHEEL",
       "Driver Unresponsive",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.MID, VisualAlert.steerRequired, AudibleAlert.chimeWarning2Repeat, .1, .1, .1),
+      Priority.MID, VisualAlert.steerRequired, AudibleAlert.chimeWarning2RepeatInfinite, .1, .1, .1),
   },
 
   EventName.driverUnresponsive: {
@@ -450,7 +450,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       "DISENGAGE IMMEDIATELY",
       "Driver Unresponsive",
       AlertStatus.critical, AlertSize.full,
-      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.chimeWarningRepeat, .1, .1, .1),
+      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.chimeWarningRepeatInfinite, .1, .1, .1),
   },
 
   EventName.manualRestart: {
@@ -857,7 +857,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       "Speed Too High",
       "Model uncertain at this speed",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.chimeWarning2Repeat, 2.2, 3., 4.),
+      Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.chimeWarning2RepeatInfinite, 2.2, 3., 4.),
     ET.NO_ENTRY: Alert(
       "Speed Too High",
       "Slow down to engage",
