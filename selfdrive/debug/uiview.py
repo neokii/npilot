@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import time
-import cereal.messaging as messaging
-from cereal import log
+from cereal import messaging, log
 from selfdrive.manager.process_config import managed_processes
 
 if __name__ == "__main__":
@@ -18,7 +17,7 @@ if __name__ == "__main__":
   
   msgs['pandaStates'] = messaging.new_message('pandaStates', 1)
   msgs['pandaStates'].pandaStates[0].ignitionLine = True
-  msgs['pandaStates'].pandaStates[0].pandaType = log.PandaState.PandaType.blackPanda
+  msgs['pandaStates'].pandaStates[0].pandaType = log.PandaState.PandaType.uno
   
   speed = 0.
   try:

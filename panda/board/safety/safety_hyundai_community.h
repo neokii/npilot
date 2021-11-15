@@ -33,7 +33,7 @@ AddrCheckStruct hyundai_community_addr_checks[] = {
 
 addr_checks hyundai_community_rx_checks = {hyundai_community_addr_checks, HYUNDAI_COMMUNITY_ADDR_CHECK_LEN};
 
-static int hyundai_community_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
+static int hyundai_community_rx_hook(CANPacket_t *to_push) {
 
   int addr = GET_ADDR(to_push);
   int bus = GET_BUS(to_push);
@@ -128,7 +128,7 @@ static int hyundai_community_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
   return valid;
 }
 
-static int hyundai_community_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
+static int hyundai_community_tx_hook(CANPacket_t *to_send) {
 
   int tx = 1;
   int addr = GET_ADDR(to_send);
@@ -218,7 +218,7 @@ static int hyundai_community_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   return tx;
 }
 
-static int hyundai_community_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
+static int hyundai_community_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
 
   int bus_fwd = -1;
   int addr = GET_ADDR(to_fwd);
