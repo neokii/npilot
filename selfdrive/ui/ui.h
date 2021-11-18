@@ -26,6 +26,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <optional>
 
 #include <QObject>
 #include <QTimer>
