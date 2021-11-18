@@ -40,5 +40,13 @@
   "Offroad_StorageMissing": {
     "text": "Storage drive not mounted.",
     "severity": 1
+  },
+  "Offroad_CarUnrecognized": {
+    "text": "Choose your car in community settings.",
+    "severity": 0
+  },
+  "Offroad_NoFirmware": {
+    "text": "Choose your car in community settings.",
+    "severity": 0
   }
 }
