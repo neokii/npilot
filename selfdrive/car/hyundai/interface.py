@@ -25,12 +25,9 @@ class CarInterface(CarInterfaceBase):
     v_current_kph = current_speed * CV.MS_TO_KPH
 
     gas_max_bp = [0., 10., 20., 50., 70., 130.]
-    gas_max_v = [2., 1.5, 1.0, 0.7, 0.45, 0.2]
+    gas_max_v = [CarControllerParams.ACCEL_MAX, 1.6, 1.1, 0.75, 0.47, 0.22]
 
-    brake_max_bp = [0, 70., 130.]
-    brake_max_v = [CarControllerParams.ACCEL_MIN, -3.2, -2.3]
-
-    return interp(v_current_kph, brake_max_bp, brake_max_v), interp(v_current_kph, gas_max_bp, gas_max_v)
+    return CarControllerParams.ACCEL_MIN, interp(v_current_kph, gas_max_bp, gas_max_v)
 
   @staticmethod
   def get_params(candidate, fingerprint=gen_empty_fingerprint(), car_fw=[]):  # pylint: disable=dangerous-default-value
@@ -70,11 +67,11 @@ class CarInterface(CarInterfaceBase):
     ret.longitudinalTuning.kpBP = [0., 10.*CV.KPH_TO_MS, 20.*CV.KPH_TO_MS, 130.*CV.KPH_TO_MS]
     ret.longitudinalTuning.kpV = [1.2, 0.97, 0.83, 0.5]
     ret.longitudinalTuning.kiBP = [0., 130. * CV.KPH_TO_MS]
-    ret.longitudinalTuning.kiV = [0.06, 0.03]
+    ret.longitudinalTuning.kiV = [0.08, 0.05]
     ret.longitudinalTuning.deadzoneBP = [0., 30.*CV.KPH_TO_MS]
     ret.longitudinalTuning.deadzoneV = [0., 0.15]
     ret.longitudinalActuatorDelayLowerBound = 0.15
-    ret.longitudinalActuatorDelayUpperBound = 0.3
+    ret.longitudinalActuatorDelayUpperBound = 0.2
 
     ret.startAccel = -0.5
     ret.stopAccel = -2.0
