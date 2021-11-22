@@ -49,6 +49,14 @@ def flash_panda(panda_serial : str) -> Panda:
     cloudlog.info("Done flashing bootloader")
 
   if panda.bootstub:
+    if panda.get_mcu_type() == MCU_TYPE_H7:
+      subprocess.run("cd /data/openpilot/panda/board; ./recover_h7.sh", capture_output=True, shell=True)
+    else:
+      subprocess.run("cd /data/openpilot/panda/board; ./recover.sh", capture_output=True, shell=True)
+    panda.reset()
+    panda.reconnect()
+
+  if panda.bootstub:
     cloudlog.info("Panda still not booting, exiting")
     raise AssertionError
 
