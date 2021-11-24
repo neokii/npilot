@@ -76,16 +76,27 @@ class CarState(CarStateBase):
 
     ret.cluSpeedMs = cluSpeed * self.speed_conv_to_ms
 
-    if not self.use_cluster_speed:
-      ret.wheelSpeeds.fl = cp.vl["WHL_SPD11"]["WHL_SPD_FL"] * CV.KPH_TO_MS
-      ret.wheelSpeeds.fr = cp.vl["WHL_SPD11"]["WHL_SPD_FR"] * CV.KPH_TO_MS
-      ret.wheelSpeeds.rl = cp.vl["WHL_SPD11"]["WHL_SPD_RL"] * CV.KPH_TO_MS
-      ret.wheelSpeeds.rr = cp.vl["WHL_SPD11"]["WHL_SPD_RR"] * CV.KPH_TO_MS
-      ret.vEgoRaw = (ret.wheelSpeeds.fl + ret.wheelSpeeds.fr + ret.wheelSpeeds.rl + ret.wheelSpeeds.rr) / 4.
-    else:
-      ret.vEgoRaw = cluSpeed * self.speed_conv_to_ms
+    ret.wheelSpeeds.fl = cp.vl["WHL_SPD11"]["WHL_SPD_FL"] * CV.KPH_TO_MS
+    ret.wheelSpeeds.fr = cp.vl["WHL_SPD11"]["WHL_SPD_FR"] * CV.KPH_TO_MS
+    ret.wheelSpeeds.rl = cp.vl["WHL_SPD11"]["WHL_SPD_RL"] * CV.KPH_TO_MS
+    ret.wheelSpeeds.rr = cp.vl["WHL_SPD11"]["WHL_SPD_RR"] * CV.KPH_TO_MS
 
-    ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
+    vEgoRawWheel = (ret.wheelSpeeds.fl + ret.wheelSpeeds.fr + ret.wheelSpeeds.rl + ret.wheelSpeeds.rr) / 4.
+    vEgoWheel, aEgoWheel = self.update_speed_kf(vEgoRawWheel)
+
+    vEgoRawClu = cluSpeed * self.speed_conv_to_ms
+    vEgoClu, aEgoClu = self.update_clu_speed_kf(vEgoRawClu)
+
+    if self.use_cluster_speed:
+      ret.vEgoRaw = vEgoRawClu
+      ret.vEgo = vEgoClu
+      ret.aEgo = aEgoClu
+    else:
+      ret.vEgoRaw = vEgoRawWheel
+      ret.vEgo = vEgoWheel
+      ret.aEgo = aEgoWheel
+
+    ret.vDelta = vEgoClu - vEgoWheel
 
     ret.standstill = ret.vEgoRaw < 0.01
 

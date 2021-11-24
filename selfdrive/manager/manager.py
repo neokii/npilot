@@ -41,7 +41,7 @@ def manager_init():
     ("IsMetric", "1"),
 
     # HKG
-    ("UseClusterSpeed", "1"),
+    ("UseClusterSpeed", "0"),
     ("LongControlEnabled", "0"),
     ("MadModeEnabled", "1"),
     ("IsLdwsCar", "0"),

@@ -203,11 +203,23 @@ class CarStateBase:
                          C=[1.0, 0.0],
                          K=[[0.12287673], [0.29666309]])
 
+    self.v_ego_clu_kf = KF1D(x0=[[0.0], [0.0]],
+                         A=[[1.0, DT_CTRL], [0.0, 1.0]],
+                         C=[1.0, 0.0],
+                         K=[[0.12287673], [0.29666309]])
+
   def update_speed_kf(self, v_ego_raw):
     if abs(v_ego_raw - self.v_ego_kf.x[0][0]) > 2.0:  # Prevent large accelerations when car starts at non zero speed
       self.v_ego_kf.x = [[v_ego_raw], [0.0]]
 
     v_ego_x = self.v_ego_kf.update(v_ego_raw)
+    return float(v_ego_x[0]), float(v_ego_x[1])
+  
+  def update_clu_speed_kf(self, v_ego_raw):
+    if abs(v_ego_raw - self.v_ego_clu_kf.x[0][0]) > 2.0:  # Prevent large accelerations when car starts at non zero speed
+      self.v_ego_clu_kf.x = [[v_ego_raw], [0.0]]
+
+    v_ego_x = self.v_ego_clu_kf.update(v_ego_raw)
     return float(v_ego_x[0]), float(v_ego_x[1])
 
   def update_blinker_from_lamp(self, blinker_time: int, left_blinker_lamp: bool, right_blinker_lamp: bool):
