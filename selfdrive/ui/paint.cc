@@ -823,6 +823,81 @@ static void ui_draw_vision_brake(UIState *s) {
   ui_draw_circle_image(s, center_x, center_y, radius, "brake", brake_bg, brake_img_alpha);
 }
 
+static void ui_draw_turn_signal(UIState *s) {
+
+  static int blink_index = 0;
+  static int blink_wait = 0;
+  static double prev_ts = 0.0;
+
+  if(blink_wait > 0) {
+    blink_wait--;
+    blink_index = 0;
+  }
+  else {
+
+    auto car_state = (*s->sm)["carState"].getCarState();
+    bool left_on = car_state.getLeftBlinker();
+    bool right_on = car_state.getRightBlinker();
+
+    const float img_alpha = 0.8f;
+
+    const int fb_w = s->fb_w / 2 - 200;
+
+    const int center_x = (s->fb_w - (bdr_s * 2)) / 2 + bdr_s;
+    const int w = fb_w / 43;
+    const int h = 133/4;
+    const int gap = fb_w / 23;
+    const int margin = fb_w / 6;
+    const int base_y = bdr_s + 10;
+    const int draw_count = 10;
+
+    int x = center_x;
+    int y = base_y;
+
+    if(left_on) {
+      for(int i = 0; i < draw_count; i++) {
+        float alpha = img_alpha;
+        int d = std::abs(blink_index - i);
+        if(d > 0)
+          alpha /= d*2;
+
+        ui_draw_image(s, {x - w - margin, y, w, h}, "turn_signal_l", alpha);
+        x -= gap + w;
+      }
+    }
+
+    x = center_x;
+    if(right_on) {
+      for(int i = 0; i < draw_count; i++) {
+        float alpha = img_alpha;
+        int d = std::abs(blink_index - i);
+        if(d > 0)
+          alpha /= d*2;
+
+        ui_draw_image(s, {x + margin, y, w, h}, "turn_signal_r", alpha);
+        x += gap + w;
+      }
+    }
+
+    if(left_on || right_on) {
+
+      double now = millis_since_boot();
+      if(now - prev_ts > 900/UI_FREQ) {
+        prev_ts = now;
+        blink_index++;
+      }
+
+      if(blink_index >= draw_count) {
+        blink_index = draw_count - 1;
+        blink_wait = UI_FREQ/3;
+      }
+    }
+    else {
+      blink_index = 0;
+    }
+  }
+}
+
 static void ui_draw_vision_autohold(UIState *s) {
   auto car_state = (*s->sm)["carState"].getCarState();
   int autohold = car_state.getAutoHold();
@@ -945,6 +1020,7 @@ static void ui_draw_vision(UIState *s) {
   ui_draw_vision_scc_gap(s);
   ui_draw_vision_brake(s);
   ui_draw_vision_autohold(s);
+  ui_draw_turn_signal(s);
 
 #if UI_FEATURE_DASHCAM
    if(s->awake && Hardware::EON())
@@ -1027,6 +1103,8 @@ void ui_nvg_init(UIState *s) {
     {"custom_lead_vision", "../assets/images/custom_lead_vision.png"},
     {"custom_lead_radar", "../assets/images/custom_lead_radar.png"},
     {"tire_pressure", "../assets/images/img_tire_pressure.png"},
+    {"turn_signal_l", "../assets/images/turn_signal_l.png"},
+    {"turn_signal_r", "../assets/images/turn_signal_r.png"},
   };
   for (auto [name, file] : images) {
     s->images[name] = nvgCreateImage(s->vg, file, 1);

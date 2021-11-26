@@ -85,8 +85,8 @@ static void ui_draw_extras_limit_speed(UIState *s)
     {
         int w = s->fb_w / 10;
         int h = s->fb_w / 10;
-        int x = (bdr_s*2) + 200 + s->fb_w / 25;
-        int y = 30;
+        int x = (bdr_s*2) + 220 + s->fb_w / 25;
+        int y = 100;
         char str[32];
 
         nvgBeginPath(s->vg);
@@ -127,8 +127,8 @@ static void ui_draw_extras_limit_speed(UIState *s)
         {
             int w = s->fb_w / 10;
             int h = s->fb_w / 10;
-            int x = (bdr_s*2) + 200 + s->fb_w / 25;
-            int y = 30;
+            int x = (bdr_s*2) + 220 + s->fb_w / 25;
+            int y = 100;
             char str[32];
 
             nvgBeginPath(s->vg);
