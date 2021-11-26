@@ -613,6 +613,12 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
                                             "../assets/offroad/icon_road.png",
                                             this));
 
+  toggles.append(new ParamControl("KeepSteeringTurnSignals",
+                                            "Keep steering while turn signals.",
+                                            "",
+                                            "../assets/offroad/icon_openpilot.png",
+                                            this));
+
   /*toggles.append(new ParamControl("NewRadarInterface",
                                             "Use new radar interface",
                                             "",

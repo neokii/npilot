@@ -51,6 +51,7 @@ def manager_init():
     ("SccSmootherSlowOnCurves", "0"),
     ("SccSmootherSyncGasPressed", "0"),
     ("StockNaviDecelEnabled", "0"),
+    ("KeepSteeringTurnSignals", "0"),
     ("ShowDebugUI", "0"),
     ("DisableOpFcw", "0"),
     ("CustomLeadMark", "0"),

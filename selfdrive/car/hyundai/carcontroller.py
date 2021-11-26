@@ -64,9 +64,11 @@ class CarController():
     self.longcontrol = CP.openpilotLongitudinalControl
     self.scc_live = not CP.radarOffCan
 
+    self.turning_indicator_alert = False
     self.mad_mode_enabled = Params().get_bool('MadModeEnabled')
     self.ldws_opt = Params().get_bool('IsLdwsCar')
     self.stock_navi_decel_enabled = Params().get_bool('StockNaviDecelEnabled')
+    self.keep_steering_turn_signals = Params().get_bool('KeepSteeringTurnSignals')
 
     # gas_factor, brake_factor
     # Adjust it in the range of 0.7 to 1.3
