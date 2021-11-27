@@ -844,12 +844,12 @@ static void ui_draw_turn_signal(UIState *s) {
     const int fb_w = s->fb_w / 2 - 200;
 
     const int center_x = (s->fb_w - (bdr_s * 2)) / 2 + bdr_s;
-    const int w = fb_w / 43;
-    const int h = 133/4;
-    const int gap = fb_w / 23;
-    const int margin = fb_w / 6;
+    const int w = fb_w / 37;
+    const int h = 40;
+    const int gap = fb_w / 18;
+    const int margin = fb_w / 5;
     const int base_y = bdr_s + 10;
-    const int draw_count = 10;
+    const int draw_count = 8;
 
     int x = center_x;
     int y = base_y;
@@ -889,7 +889,7 @@ static void ui_draw_turn_signal(UIState *s) {
 
       if(blink_index >= draw_count) {
         blink_index = draw_count - 1;
-        blink_wait = UI_FREQ/3;
+        blink_wait = UI_FREQ/4;
       }
     }
     else {
