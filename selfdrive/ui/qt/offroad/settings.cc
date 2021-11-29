@@ -618,6 +618,11 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
                                             "",
                                             "../assets/offroad/icon_openpilot.png",
                                             this));
+  toggles.append(new ParamControl("WarningOverSpeedLimit",
+                                            "Warning when speed limit is exceeded.",
+                                            "",
+                                            "../assets/offroad/icon_openpilot.png",
+                                            this));
 
   /*toggles.append(new ParamControl("NewRadarInterface",
                                             "Use new radar interface",
