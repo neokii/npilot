@@ -96,7 +96,7 @@ class CarState(CarStateBase):
       ret.vEgo = vEgoWheel
       ret.aEgo = aEgoWheel
 
-    ret.vDelta = vEgoClu - vEgoWheel
+    ret.vCluRatio = (vEgoWheel / vEgoClu) if (vEgoClu > 3. and vEgoWheel > 3.) else 1.0
 
     ret.standstill = ret.vEgoRaw < 0.01
 
