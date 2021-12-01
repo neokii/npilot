@@ -845,7 +845,7 @@ static void ui_draw_turn_signal(UIState *s) {
 
     const int center_x = (s->fb_w - (bdr_s * 2)) / 2 + bdr_s;
     const int w = fb_w / 37;
-    const int h = 40;
+    const int h = 50;
     const int gap = fb_w / 18;
     const int margin = fb_w / 5;
     const int base_y = bdr_s + 10;
