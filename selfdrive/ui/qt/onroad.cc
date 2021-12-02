@@ -93,7 +93,7 @@ void OnroadWindow::mouseReleaseEvent(QMouseEvent* e) {
       if(dy < 0) { // upward
         Params().remove("CalibrationParams");
         Params().remove("LiveParameters");
-        QTimer::singleShot(500, []() {
+        QTimer::singleShot(1500, []() {
           Params().putBool("SoftRestartTriggered", true);
         });
 

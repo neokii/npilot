@@ -387,17 +387,18 @@ struct CarControl {
 
     enum AudibleAlert {
       none @0;
+
       engage @1;
       disengage @2;
       refuse @3;
 
       warningSoft @4;
       warningImmediate @5;
-      warningDEPRECATED @6;
 
-      prompt @7;
-      promptRepeat @8;
-
+      prompt @6;
+      promptRepeat @7;
+      promptDistracted @8;
+      
       slowingDownSpeed @9;
     }
   }
