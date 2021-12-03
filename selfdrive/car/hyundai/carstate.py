@@ -76,10 +76,12 @@ class CarState(CarStateBase):
 
     ret.cluSpeedMs = cluSpeed * self.speed_conv_to_ms
 
-    ret.wheelSpeeds.fl = cp.vl["WHL_SPD11"]["WHL_SPD_FL"] * CV.KPH_TO_MS
-    ret.wheelSpeeds.fr = cp.vl["WHL_SPD11"]["WHL_SPD_FR"] * CV.KPH_TO_MS
-    ret.wheelSpeeds.rl = cp.vl["WHL_SPD11"]["WHL_SPD_RL"] * CV.KPH_TO_MS
-    ret.wheelSpeeds.rr = cp.vl["WHL_SPD11"]["WHL_SPD_RR"] * CV.KPH_TO_MS
+    ret.wheelSpeeds = self.get_wheel_speeds(
+      cp.vl["WHL_SPD11"]["WHL_SPD_FL"],
+      cp.vl["WHL_SPD11"]["WHL_SPD_FR"],
+      cp.vl["WHL_SPD11"]["WHL_SPD_RL"],
+      cp.vl["WHL_SPD11"]["WHL_SPD_RR"],
+    )
 
     vEgoRawWheel = (ret.wheelSpeeds.fl + ret.wheelSpeeds.fr + ret.wheelSpeeds.rl + ret.wheelSpeeds.rr) / 4.
     vEgoWheel, aEgoWheel = self.update_speed_kf(vEgoRawWheel)
