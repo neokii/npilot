@@ -56,9 +56,7 @@ def manager_init():
     ("StockNaviDecelEnabled", "0"),
     ("KeepSteeringTurnSignals", "0"),
     ("WarningOverSpeedLimit", "0"),
-    ("ShowDebugUI", "0"),
     ("DisableOpFcw", "0"),
-    ("CustomLeadMark", "0"),
     ("NewRadarInterface", "0"),
   ]
   if not PC:

@@ -636,7 +636,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
                                             "../assets/offroad/icon_shell.png",
                                             this));
 
-  toggles.append(new ParamControl("ShowDebugUI",
+  /*toggles.append(new ParamControl("ShowDebugUI",
                                             "Show Debug UI",
                                             "",
                                             "../assets/offroad/icon_shell.png",
@@ -646,7 +646,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
                                             "Use custom lead mark",
                                             "",
                                             "../assets/offroad/icon_road.png",
-                                            this));
+                                            this));*/
 
   for(ParamControl *toggle : toggles) {
     if(main_layout->count() != 0) {

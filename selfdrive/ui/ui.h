@@ -114,11 +114,6 @@ typedef struct UIState {
 
   QTransform car_space_transform;
   bool wide_camera;
-  
-  float running_time;
-
-  bool show_debug_ui, custom_lead_mark;
-  int lock_on_anim_index;
 } UIState;
 
 
