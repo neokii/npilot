@@ -767,7 +767,7 @@ void OnroadHud::drawTurnSignals(QPainter &p, UIState& s) {
     const int h = 160;
     const int gap = fb_w / 25;
     const int margin = (int)(fb_w / 3.8f);
-    const int base_y = 100;
+    const int base_y = (height() - h) / 2;
     const int draw_count = 8;
 
     int x = center_x;
