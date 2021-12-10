@@ -764,10 +764,10 @@ void OnroadHud::drawTurnSignals(QPainter &p, UIState& s) {
     const int fb_w = width() / 2 - 200;
     const int center_x = width() / 2;
     const int w = fb_w / 25;
-    const int h = 100;
+    const int h = 160;
     const int gap = fb_w / 25;
     const int margin = (int)(fb_w / 3.8f);
-    const int base_y = 118;
+    const int base_y = 100;
     const int draw_count = 8;
 
     int x = center_x;
@@ -781,7 +781,8 @@ void OnroadHud::drawTurnSignals(QPainter &p, UIState& s) {
           alpha /= d*2;
 
         p.setOpacity(alpha);
-        p.drawPixmap(x - w - margin, y, w, h, ic_turn_signal_l);
+        float factor = (float)draw_count / (i + draw_count);
+        p.drawPixmap(x - w - margin, y + (h-h*factor)/2, w*factor, h*factor, ic_turn_signal_l);
         x -= gap + w;
       }
     }
@@ -794,8 +795,9 @@ void OnroadHud::drawTurnSignals(QPainter &p, UIState& s) {
         if(d > 0)
           alpha /= d*2;
 
+        float factor = (float)draw_count / (i + draw_count);
         p.setOpacity(alpha);
-        p.drawPixmap(x + margin, y, w, h, ic_turn_signal_r);
+        p.drawPixmap(x + margin, y + (h-h*factor)/2, w*factor, h*factor, ic_turn_signal_r);
         x += gap + w;
       }
     }
