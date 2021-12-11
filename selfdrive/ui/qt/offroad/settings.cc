@@ -632,13 +632,13 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
                                             "../assets/offroad/icon_shell.png",
                                             this));
 
-  /*toggles.append(new ParamControl("ShowDebugUI",
+  toggles.append(new ParamControl("ShowDebugUI",
                                             "Show Debug UI",
                                             "",
                                             "../assets/offroad/icon_shell.png",
                                             this));
 
-  toggles.append(new ParamControl("CustomLeadMark",
+  /*toggles.append(new ParamControl("CustomLeadMark",
                                             "Use custom lead mark",
                                             "",
                                             "../assets/offroad/icon_road.png",

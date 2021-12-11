@@ -53,6 +53,6 @@ public:
     void start(bool sound);
     void stop(bool sound);
     void toggle();
-    void update_screen();
+    void update_screen(QWidget* hud);
 
 };

@@ -16,14 +16,6 @@
 
 class OnroadHud : public QWidget {
   Q_OBJECT
-  /*Q_PROPERTY(QString speed MEMBER speed NOTIFY valueChanged);
-  Q_PROPERTY(QString speedUnit MEMBER speedUnit NOTIFY valueChanged);
-  Q_PROPERTY(QString maxSpeed MEMBER maxSpeed NOTIFY valueChanged);
-  Q_PROPERTY(bool is_cruise_set MEMBER is_cruise_set NOTIFY valueChanged);
-  Q_PROPERTY(bool engageable MEMBER engageable NOTIFY valueChanged);
-  Q_PROPERTY(bool dmActive MEMBER dmActive NOTIFY valueChanged);
-  Q_PROPERTY(bool hideDM MEMBER hideDM NOTIFY valueChanged);
-  Q_PROPERTY(int status MEMBER status NOTIFY valueChanged);*/
 
 public:
   explicit OnroadHud(QWidget *parent);
@@ -56,13 +48,15 @@ private:
 
   void drawText2(QPainter &p, int x, int y, int flags, const QString &text, const QColor& color);
 
-  void drawCommunity(QPainter &p, UIState& s);
   void drawMaxSpeed(QPainter &p, UIState& s);
   void drawSpeed(QPainter &p, UIState& s);
-
   void drawBottomIcons(QPainter &p, UIState& s);
   void drawSpeedLimit(QPainter &p, UIState& s);
   void drawTurnSignals(QPainter &p, UIState& s);
+  void drawDebugText(QPainter &p, UIState& s);
+
+public:
+  void drawCommunity(QPainter &p, UIState& s);
 
 signals:
   void valueChanged();
@@ -89,7 +83,7 @@ class NvgWindow : public CameraViewWidget {
 
 public:
   explicit NvgWindow(VisionStreamType type, QWidget* parent = 0) : CameraViewWidget("camerad", type, true, parent) {}
-
+  OnroadHud *hud;
   void paintGL() override;
 protected:
   void initializeGL() override;

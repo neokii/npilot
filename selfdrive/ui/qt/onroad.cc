@@ -26,6 +26,8 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
   hud = new OnroadHud(this);
   road_view_layout->addWidget(hud);
 
+  nvg->hud = hud;
+
   QWidget * split_wrapper = new QWidget;
   split = new QHBoxLayout(split_wrapper);
   split->setContentsMargins(0, 0, 0, 0);
@@ -50,8 +52,9 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
 
   record_timer = std::make_shared<QTimer>();
 	QObject::connect(record_timer.get(), &QTimer::timeout, [=]() {
-    if(recorder)
-      recorder->update_screen();
+    if(recorder) {
+      recorder->update_screen(hud);
+    }
   });
 	record_timer->start(1000/UI_FREQ);
 
@@ -77,8 +80,6 @@ void OnroadWindow::updateState(const UIState &s) {
     }
     alerts->updateAlert(alert, bgColor);
   }
-
-  hud->updateState(s);
 
   if (bg != bgColor) {
     // repaint border
@@ -262,21 +263,13 @@ OnroadHud::OnroadHud(QWidget *parent) : QWidget(parent) {
 }
 
 void OnroadHud::updateState(const UIState &s) {
-  update();
 }
 
 void OnroadHud::paintEvent(QPaintEvent *event) {
-  QPainter p(this);
-  p.setRenderHint(QPainter::Antialiasing);
-  p.setPen(Qt::NoPen);
-
-  // Header gradient
-  QLinearGradient bg(0, header_h - (header_h / 2.5), 0, header_h);
-  bg.setColorAt(0, QColor::fromRgbF(0, 0, 0, 0.45));
-  bg.setColorAt(1, QColor::fromRgbF(0, 0, 0, 0));
-  p.fillRect(0, 0, width(), header_h, bg);
-
-  drawCommunity(p, QUIState::ui_state);
+  if(QUIState::ui_state.recording) {
+    QPainter p(this);
+    drawCommunity(p, QUIState::ui_state);
+  }
 }
 
 void OnroadHud::drawText(QPainter &p, int x, int y, const QString &text, int alpha) {
@@ -401,6 +394,11 @@ void OnroadHud::drawLead(QPainter &painter, const cereal::ModelDataV2::LeadDataV
 
 void NvgWindow::paintGL() {
   CameraViewWidget::paintGL();
+  UIState *s = &QUIState::ui_state;
+  if (s->scene.world_objects_visible && !s->recording) {
+    QPainter p(this);
+    hud->drawCommunity(p, QUIState::ui_state);
+  }
 
   double cur_draw_t = millis_since_boot();
   double dt = cur_draw_t - prev_draw_t;
@@ -419,6 +417,16 @@ void NvgWindow::showEvent(QShowEvent *event) {
 }
 
 void OnroadHud::drawCommunity(QPainter &p, UIState& s) {
+
+  p.setRenderHint(QPainter::Antialiasing);
+  p.setPen(Qt::NoPen);
+
+  // Header gradient
+  QLinearGradient bg(0, header_h - (header_h / 2.5), 0, header_h);
+  bg.setColorAt(0, QColor::fromRgbF(0, 0, 0, 0.45));
+  bg.setColorAt(1, QColor::fromRgbF(0, 0, 0, 0));
+  p.fillRect(0, 0, width(), header_h, bg);
+
   const SubMaster &sm = *(s.sm);
 
   drawLaneLines(p, s.scene);
@@ -436,6 +444,9 @@ void OnroadHud::drawCommunity(QPainter &p, UIState& s) {
   drawSpeedLimit(p, s);
   drawTurnSignals(p, s);
   drawBottomIcons(p, s);
+
+  if(s.show_debug)
+    drawDebugText(p, s);
 
   const auto controls_state = sm["controlsState"].getControlsState();
   const auto car_params = sm["carParams"].getCarParams();
@@ -700,7 +711,7 @@ void OnroadHud::drawSpeedLimit(QPainter &p, UIState& s) {
     else
       str_left_dist.sprintf("%dm", left_dist);
 
-    configFont(p, "Open Sans", 70, "Bold");
+    configFont(p, "Open Sans", 80, "Bold");
     p.setPen(QColor(0, 0, 0, 230));
     p.drawText(rect, Qt::AlignCenter, str_limit_speed);
 
@@ -819,4 +830,81 @@ void OnroadHud::drawTurnSignals(QPainter &p, UIState& s) {
       blink_index = 0;
     }
   }
+}
+
+void OnroadHud::drawDebugText(QPainter &p, UIState& s) {
+  const SubMaster &sm = *(s.sm);
+  QString str, temp;
+
+  int y = 80;
+  const int height = 60;
+
+  const int text_x = width()/2 + 250;
+
+  auto controls_state = sm["controlsState"].getControlsState();
+  auto car_control = sm["carControl"].getCarControl();
+  auto car_state = sm["carState"].getCarState();
+
+  float applyAccel = controls_state.getApplyAccel();
+
+  float aReqValue = controls_state.getAReqValue();
+  float aReqValueMin = controls_state.getAReqValueMin();
+  float aReqValueMax = controls_state.getAReqValueMax();
+
+  int sccStockCamAct = (int)controls_state.getSccStockCamAct();
+  int sccStockCamStatus = (int)controls_state.getSccStockCamStatus();
+
+  int longControlState = (int)controls_state.getLongControlState();
+  float vPid = controls_state.getVPid();
+  float upAccelCmd = controls_state.getUpAccelCmd();
+  float uiAccelCmd = controls_state.getUiAccelCmd();
+  float ufAccelCmd = controls_state.getUfAccelCmd();
+  float accel = car_control.getActuators().getAccel();
+
+  const char* long_state[] = {"off", "pid", "stopping", "starting"};
+
+  configFont(p, "Open Sans", 35, "Regular");
+  p.setPen(QColor(255, 255, 255, 200));
+  p.setRenderHint(QPainter::TextAntialiasing);
+
+  str.sprintf("State: %s\n", long_state[longControlState]);
+  p.drawText(text_x, y, str);
+
+  y += height;
+  str.sprintf("vPid: %.3f(%.1f)\n", vPid, vPid * 3.6f);
+  p.drawText(text_x, y, str);
+
+  y += height;
+  str.sprintf("P: %.3f\n", upAccelCmd);
+  p.drawText(text_x, y, str);
+
+  y += height;
+  str.sprintf("I: %.3f\n", uiAccelCmd);
+  p.drawText(text_x, y, str);
+
+  y += height;
+  str.sprintf("F: %.3f\n", ufAccelCmd);
+  p.drawText(text_x, y, str);
+
+  y += height;
+  str.sprintf("Accel: %.3f\n", accel);
+  p.drawText(text_x, y, str);
+
+  y += height;
+  str.sprintf("Apply: %.3f, Stock: %.3f\n", applyAccel, aReqValue);
+  p.drawText(text_x, y, str);
+
+  y += height;
+  str.sprintf("%.3f (%.3f/%.3f)\n", aReqValue, aReqValueMin, aReqValueMax);
+  p.drawText(text_x, y, str);
+
+  auto lead_radar = sm["radarState"].getRadarState().getLeadOne();
+  auto lead_one = sm["modelV2"].getModelV2().getLeadsV3()[0];
+
+  float radar_dist = lead_radar.getStatus() && lead_radar.getRadar() ? lead_radar.getDRel() : 0;
+  float vision_dist = lead_one.getProb() > .5 ? (lead_one.getX()[0] - 1.5) : 0;
+
+  y += height;
+  str.sprintf("Lead: %.1f/%.1f/%.1f\n", radar_dist, vision_dist, (radar_dist - vision_dist));
+  p.drawText(text_x, y, str);
 }

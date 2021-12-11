@@ -24,6 +24,7 @@ static long long milliseconds(void) {
 ScreenRecoder::ScreenRecoder(QWidget *parent) : QPushButton(parent), image_queue(30) {
 
     recording = false;
+    QUIState::ui_state.recording = false;
     started = 0;
     frame = 0;
 
@@ -133,6 +134,7 @@ void ScreenRecoder::start(bool sound) {
 
   openEncoder(filename);
   recording = true;
+  QUIState::ui_state.recording = true;
   frame = 0;
 
   encoding_thread = std::thread([=] { encoding_thread_func(); });
@@ -169,6 +171,7 @@ void ScreenRecoder::stop(bool sound) {
   if(recording) {
     closeEncoder();
     recording = false;
+    QUIState::ui_state.recording = false;
     update();
 
     if(sound)
@@ -181,7 +184,7 @@ void ScreenRecoder::stop(bool sound) {
   }
 }
 
-void ScreenRecoder::update_screen() {
+void ScreenRecoder::update_screen(QWidget* hud) {
 
   if(recording && encoder) {
 
@@ -196,6 +199,9 @@ void ScreenRecoder::update_screen() {
     QWidget* widget = this;
     while (widget->parentWidget() != Q_NULLPTR)
       widget = widget->parentWidget();
+
+    if(hud)
+      hud->update();
 
     QPixmap pixmap = widget->grab();
     image_queue.push(pixmap.toImage());

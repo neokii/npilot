@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 import time
 from cereal import messaging, log
+from selfdrive.hardware import HARDWARE
 from selfdrive.manager.process_config import managed_processes
 
 if __name__ == "__main__":
   procs = ['camerad', 'ui', 'modeld', 'calibrationd']
+
+  HARDWARE.set_power_save(False)
 
   for p in procs:
     managed_processes[p].start()
