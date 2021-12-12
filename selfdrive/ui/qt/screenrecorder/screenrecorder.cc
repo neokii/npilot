@@ -184,7 +184,7 @@ void ScreenRecoder::stop(bool sound) {
   }
 }
 
-void ScreenRecoder::update_screen(QWidget* hud) {
+void ScreenRecoder::update_screen() {
 
   if(recording && encoder) {
 
@@ -199,9 +199,6 @@ void ScreenRecoder::update_screen(QWidget* hud) {
     QWidget* widget = this;
     while (widget->parentWidget() != Q_NULLPTR)
       widget = widget->parentWidget();
-
-    if(hud)
-      hud->update();
 
     QPixmap pixmap = widget->grab();
     image_queue.push(pixmap.toImage());
