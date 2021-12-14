@@ -24,7 +24,7 @@ static long long milliseconds(void) {
 ScreenRecoder::ScreenRecoder(QWidget *parent) : QPushButton(parent), image_queue(30) {
 
     recording = false;
-    QUIState::ui_state.recording = false;
+    uiState()->recording = false;
     started = 0;
     frame = 0;
 
@@ -53,7 +53,7 @@ ScreenRecoder::ScreenRecoder(QWidget *parent) : QPushButton(parent), image_queue
     rgb_buffer = std::make_unique<uint8_t[]>(src_width*src_height*4);
     rgb_scale_buffer = std::make_unique<uint8_t[]>(dst_width*dst_height*4);
 
-    encoder = std::make_unique<OmxEncoder>(path.c_str(), dst_width, dst_height, 15, bitrate, false, false);
+    encoder = std::make_unique<OmxEncoder>(path.c_str(), dst_width, dst_height, UI_FREQ, bitrate, false, false);
 
     soundStart.setSource(QUrl::fromLocalFile("../assets/sounds/start_record.wav"));
     soundStop.setSource(QUrl::fromLocalFile("../assets/sounds/stop_record.wav"));
@@ -134,7 +134,7 @@ void ScreenRecoder::start(bool sound) {
 
   openEncoder(filename);
   recording = true;
-  QUIState::ui_state.recording = true;
+  uiState()->recording = true;
   frame = 0;
 
   encoding_thread = std::thread([=] { encoding_thread_func(); });
@@ -171,7 +171,7 @@ void ScreenRecoder::stop(bool sound) {
   if(recording) {
     closeEncoder();
     recording = false;
-    QUIState::ui_state.recording = false;
+    uiState()->recording = false;
     update();
 
     if(sound)
