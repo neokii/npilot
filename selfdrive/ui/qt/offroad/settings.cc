@@ -637,13 +637,13 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
                                             this));
 
   toggles.append(new ParamControl("KeepSteeringTurnSignals",
-                                            "Keep steering while turn signals.",
+                                            "Keep steering while turn signals",
                                             "",
                                             "../assets/offroad/icon_openpilot.png",
                                             this));
   toggles.append(new ParamControl("WarningOverSpeedLimit",
-                                            "Warning when speed limit is exceeded.",
-                                            "",
+                                            "Warning when speeding",
+                                            "Warning when the current speed exceeds the speed limit.",
                                             "../assets/offroad/icon_openpilot.png",
                                             this));
 
