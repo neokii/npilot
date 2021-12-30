@@ -230,6 +230,7 @@ class CarInterface(CarInterfaceBase):
       ret.mass = 1650. + STD_CARGO_KG
       ret.wheelbase = 2.855
       ret.centerToFront = ret.wheelbase * 0.4
+      ret.steerRatio = 17.5
     elif candidate == CAR.SELTOS:
       ret.mass = 1310. + STD_CARGO_KG
       ret.wheelbase = 2.6
