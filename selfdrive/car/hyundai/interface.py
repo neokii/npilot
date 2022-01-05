@@ -59,7 +59,7 @@ class CarInterface(CarInterfaceBase):
     ret.steerRatio = 16.5
     ret.steerActuatorDelay = 0.1
     ret.steerLimitTimer = 2.5
-    ret.steerRateCost = 0.35
+    ret.steerRateCost = 0.4
     ret.steerMaxBP = [0.]
     ret.steerMaxV = [2.]
 
@@ -241,7 +241,6 @@ class CarInterface(CarInterfaceBase):
       tire_stiffness_factor = 0.8
 
       ret.steerRatio = 14.5
-      ret.steerRateCost = 0.4
 
       ret.lateralTuning.lqr.scale = 1650.
       ret.lateralTuning.lqr.ki = 0.01
