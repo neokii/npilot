@@ -1518,6 +1518,7 @@ struct Event {
     clocks @35 :Clocks;
     deviceState @6 :DeviceState;
     logMessage @18 :Text;
+    errorLogMessage @85 :Text;
 
     # navigation
     navInstruction @82 :NavInstruction;
@@ -1525,7 +1526,7 @@ struct Event {
     navThumbnail @84: Thumbnail;
     
     # neokii
-    roadLimitSpeed @85 :RoadLimitSpeed;
+    roadLimitSpeed @86 :RoadLimitSpeed;
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
