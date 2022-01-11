@@ -19,13 +19,13 @@ VisualAlert = car.CarControl.HUDControl.VisualAlert
 min_set_speed = 30 * CV.KPH_TO_MS
 
 
-SP_CARS = [CAR.GENESIS, CAR.GENESIS_G70, CAR.GENESIS_G80,
-           CAR.GENESIS_EQ900, CAR.GENESIS_EQ900_L, CAR.K9, CAR.GENESIS_G90]
+SP_CARS = (CAR.GENESIS, CAR.GENESIS_G70, CAR.GENESIS_G80,
+           CAR.GENESIS_EQ900, CAR.GENESIS_EQ900_L, CAR.K9, CAR.GENESIS_G90)
 
 def process_hud_alert(enabled, fingerprint, visual_alert, left_lane, right_lane,
                       left_lane_depart, right_lane_depart):
 
-  sys_warning = (visual_alert in [VisualAlert.steerRequired, VisualAlert.ldw])
+  sys_warning = (visual_alert in (VisualAlert.steerRequired, VisualAlert.ldw))
 
   # initialize to no line visible
   sys_state = 1
