@@ -24,7 +24,6 @@ static long long milliseconds(void) {
 ScreenRecoder::ScreenRecoder(QWidget *parent) : QPushButton(parent), image_queue(30) {
 
     recording = false;
-    uiState()->recording = false;
     started = 0;
     frame = 0;
 
@@ -134,7 +133,6 @@ void ScreenRecoder::start(bool sound) {
 
   openEncoder(filename);
   recording = true;
-  uiState()->recording = true;
   frame = 0;
 
   encoding_thread = std::thread([=] { encoding_thread_func(); });
@@ -171,7 +169,6 @@ void ScreenRecoder::stop(bool sound) {
   if(recording) {
     closeEncoder();
     recording = false;
-    uiState()->recording = false;
     update();
 
     if(sound)
