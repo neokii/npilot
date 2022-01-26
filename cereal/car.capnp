@@ -432,6 +432,7 @@ struct CarParams {
   minSteerSpeed @8 :Float32;
   maxSteeringAngleDeg @54 :Float32;
   safetyConfigs @62 :List(SafetyConfig);
+  unsafeMode @65 :Int16;
 
   steerMaxBP @11 :List(Float32);
   steerMaxV @12 :List(Float32);
@@ -493,13 +494,13 @@ struct CarParams {
     safetyParam @1 :Int16;
   }
   
-  mdpsBus @65: Int8;
-  sasBus @66: Int8;
-  sccBus @67: Int8;
-  enableAutoHold @68 :Bool;
-  hasScc13 @69 :Bool;
-  hasScc14 @70 :Bool;
-  hasEms @71 :Bool;
+  mdpsBus @66: Int8;
+  sasBus @67: Int8;
+  sccBus @68: Int8;
+  enableAutoHold @69 :Bool;
+  hasScc13 @70 :Bool;
+  hasScc14 @71 :Bool;
+  hasEms @72 :Bool;
 
   struct LateralParams {
     torqueBP @0 :List(Int32);
