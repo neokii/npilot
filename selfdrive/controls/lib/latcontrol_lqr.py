@@ -53,9 +53,9 @@ class LatControlLQR():
     lqr_log = log.ControlsState.LateralLQRState.new_message()
 
     steers_max = get_steer_max(CP, CS.vEgo)
-    #torque_scale = (0.45 + CS.vEgo / 60.0)**2  # Scale actuator model with speed
+    torque_scale = (0.45 + CS.vEgo / 60.0)**2  # Scale actuator model with speed
     #torque_scale = (0.13 + CS.vEgo / 60.0)**0.8
-    torque_scale = interp(CS.vEgo*3.6, TORQUE_SCALE_BP, TORQUE_SCALE_V)
+    #torque_scale = interp(CS.vEgo*3.6, TORQUE_SCALE_BP, TORQUE_SCALE_V)
 
     # Subtract offset. Zero angle should correspond to zero torque
     steering_angle_no_offset = CS.steeringAngleDeg - params.angleOffsetAverageDeg
