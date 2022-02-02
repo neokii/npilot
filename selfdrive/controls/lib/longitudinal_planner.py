@@ -73,7 +73,7 @@ class Planner:
       vCluRatio = sm['carState'].vCluRatio
       if vCluRatio > 0.5:
         v_cruise *= vCluRatio
-        v_cruise = int(v_cruise * CV.MS_TO_KPH) * CV.KPH_TO_MS
+        v_cruise = int(v_cruise * CV.MS_TO_KPH + 0.25) * CV.KPH_TO_MS
 
     long_control_state = sm['controlsState'].longControlState
     force_slow_decel = sm['controlsState'].forceDecel
