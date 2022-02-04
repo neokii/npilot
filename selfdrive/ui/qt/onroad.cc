@@ -449,15 +449,15 @@ void NvgWindow::drawHud(QPainter &p) {
   const auto car_params = sm["carParams"].getCarParams();
   const auto live_params = sm["liveParameters"].getLiveParameters();
 
-  const auto scc_smoother = sm["carControl"].getCarControl().getSccSmoother();
-  bool is_metric = s->scene.is_metric;
-  bool long_control = scc_smoother.getLongControl();
+  //const auto scc_smoother = sm["carControl"].getCarControl().getSccSmoother();
+  //bool is_metric = s->scene.is_metric;
+  //bool long_control = scc_smoother.getLongControl();
 
   // kph
-  float applyMaxSpeed = scc_smoother.getApplyMaxSpeed();
-  float cruiseMaxSpeed = scc_smoother.getCruiseMaxSpeed();
+  //float applyMaxSpeed = scc_smoother.getApplyMaxSpeed();
+  //float cruiseMaxSpeed = scc_smoother.getCruiseMaxSpeed();
 
-  bool is_cruise_set = (cruiseMaxSpeed > 0 && cruiseMaxSpeed < 255);
+  //bool is_cruise_set = (cruiseMaxSpeed > 0 && cruiseMaxSpeed < 255);
 
   int mdps_bus = car_params.getMdpsBus();
   int scc_bus = car_params.getSccBus();
@@ -507,9 +507,6 @@ void NvgWindow::drawBottomIcons(QPainter &p) {
   auto car_state = sm["carState"].getCarState();
   auto scc_smoother = sm["carControl"].getCarControl().getSccSmoother();
 
-  int x = radius / 2 + (bdr_s * 2) + (radius + 50);
-  const int y = rect().bottom() - footer_h / 2 - 10;
-
   // tire pressure
   {
     const int w = 58;
@@ -541,6 +538,9 @@ void NvgWindow::drawBottomIcons(QPainter &p) {
     drawText2(p, center_x-marginX, center_y+marginY, Qt::AlignRight, get_tpms_text(rl), get_tpms_color(rl));
     drawText2(p, center_x+marginX, center_y+marginY, Qt::AlignLeft, get_tpms_text(rr), get_tpms_color(rr));
   }
+
+  int x = radius / 2 + (bdr_s * 2) + (radius + 50);
+  const int y = rect().bottom() - footer_h / 2 - 10;
 
   // cruise gap
   int gap = car_state.getCruiseGap();
@@ -694,14 +694,14 @@ void NvgWindow::drawSpeedLimit(QPainter &p) {
 
   if(limit_speed > 10 && left_dist > 0)
   {
-    int radius = 192;
+    int radius_ = 192;
 
     int x = 30;
     int y = 270;
 
     p.setPen(Qt::NoPen);
     p.setBrush(QBrush(QColor(255, 0, 0, 255)));
-    QRect rect = QRect(x, y, radius, radius);
+    QRect rect = QRect(x, y, radius_, radius_);
     p.drawEllipse(rect);
 
     p.setBrush(QBrush(QColor(255, 255, 255, 255)));
@@ -723,7 +723,7 @@ void NvgWindow::drawSpeedLimit(QPainter &p) {
     p.drawText(rect, Qt::AlignCenter, str_limit_speed);
 
     configFont(p, "Open Sans", 60, "Bold");
-    rect.translate(0, radius/2 + 45);
+    rect.translate(0, radius_/2 + 45);
     rect.adjust(-30, 0, 30, 0);
     p.setPen(QColor(255, 255, 255, 230));
     p.drawText(rect, Qt::AlignCenter, str_left_dist);
@@ -734,7 +734,7 @@ void NvgWindow::drawSpeedLimit(QPainter &p) {
     int sccStockCamStatus = (int)controls_state.getSccStockCamStatus();
 
     if(sccStockCamAct == 2 && sccStockCamStatus == 2) {
-      int radius = 192;
+      int radius_ = 192;
 
       int x = 30;
       int y = 270;
@@ -742,7 +742,7 @@ void NvgWindow::drawSpeedLimit(QPainter &p) {
       p.setPen(Qt::NoPen);
 
       p.setBrush(QBrush(QColor(255, 0, 0, 255)));
-      QRect rect = QRect(x, y, radius, radius);
+      QRect rect = QRect(x, y, radius_, radius_);
       p.drawEllipse(rect);
 
       p.setBrush(QBrush(QColor(255, 255, 255, 255)));
@@ -875,7 +875,7 @@ void NvgWindow::drawDebugText(QPainter &p) {
 
   auto controls_state = sm["controlsState"].getControlsState();
   auto car_control = sm["carControl"].getCarControl();
-  auto car_state = sm["carState"].getCarState();
+  //auto car_state = sm["carState"].getCarState();
 
   float applyAccel = controls_state.getApplyAccel();
 
@@ -883,8 +883,8 @@ void NvgWindow::drawDebugText(QPainter &p) {
   float aReqValueMin = controls_state.getAReqValueMin();
   float aReqValueMax = controls_state.getAReqValueMax();
 
-  int sccStockCamAct = (int)controls_state.getSccStockCamAct();
-  int sccStockCamStatus = (int)controls_state.getSccStockCamStatus();
+  //int sccStockCamAct = (int)controls_state.getSccStockCamAct();
+  //int sccStockCamStatus = (int)controls_state.getSccStockCamStatus();
 
   int longControlState = (int)controls_state.getLongControlState();
   float vPid = controls_state.getVPid();
