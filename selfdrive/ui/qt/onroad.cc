@@ -672,11 +672,11 @@ void NvgWindow::drawSpeedLimit(QPainter &p) {
   int limit_speed = 0;
   int left_dist = 0;
 
-  if(camLimitSpeed >= 30 && camLimitSpeedLeftDist > 0) {
+  if(camLimitSpeed > 0 && camLimitSpeedLeftDist > 0) {
     limit_speed = camLimitSpeed;
     left_dist = camLimitSpeedLeftDist;
   }
-  else if(sectionLimitSpeed >= 30 && sectionLeftDist > 0) {
+  else if(sectionLimitSpeed > 0 && sectionLeftDist > 0) {
     limit_speed = sectionLimitSpeed;
     left_dist = sectionLeftDist;
   }
