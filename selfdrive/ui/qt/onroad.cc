@@ -406,6 +406,7 @@ void NvgWindow::drawIcon(QPainter &p, int x, int y, QPixmap &img, QBrush bg, flo
 void NvgWindow::drawText2(QPainter &p, int x, int y, int flags, const QString &text, const QColor& color) {
   QFontMetrics fm(p.font());
   QRect rect = fm.boundingRect(text);
+  rect.adjust(-1, -1, 1, 1);
   p.setPen(color);
   p.drawText(QRect(x, y, rect.width(), rect.height()), flags, text);
 }
@@ -512,7 +513,7 @@ void NvgWindow::drawBottomIcons(QPainter &p) {
     const int w = 58;
     const int h = 126;
     const int x = 110;
-    const int y = height() - h - 80;
+    const int y = height() - h - 85;
 
     auto tpms = car_state.getTpms();
     const float fl = tpms.getFl();
@@ -528,7 +529,7 @@ void NvgWindow::drawBottomIcons(QPainter &p) {
     QFontMetrics fm(p.font());
     QRect rcFont = fm.boundingRect("9");
 
-    int center_x = x + 4;
+    int center_x = x + 3;
     int center_y = y + h/2;
     const int marginX = (int)(rcFont.width() * 2.7f);
     const int marginY = (int)((h/2 - rcFont.height()) * 0.7f);
