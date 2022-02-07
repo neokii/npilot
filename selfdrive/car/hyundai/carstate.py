@@ -146,6 +146,8 @@ class CarState(CarStateBase):
     # TODO: Check this
     ret.brakeLights = bool(cp.vl["TCS13"]["BrakeLight"] or ret.brakePressed)
 
+    ret.aBasis = cp.vl["TCS13"]["aBasis"]
+
     ret.gasPressed = cp.vl["TCS13"]["DriverOverride"] == 1
 
     if self.CP.carFingerprint in EV_HYBRID_CAR:
@@ -266,6 +268,7 @@ class CarState(CarStateBase):
       ("DriverBraking", "TCS13"),
       ("DriverOverride", "TCS13"), # scc smoother
       ("CF_VSM_Avail", "TCS13"),
+      ("aBasis", "TCS13"),
 
       ("ESC_Off_Step", "TCS15"),
       ("AVH_LAMP", "TCS15"),

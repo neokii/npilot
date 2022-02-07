@@ -649,11 +649,29 @@ void NvgWindow::drawSpeed(QPainter &p) {
   UIState *s = uiState();
   const SubMaster &sm = *(s->sm);
   float cur_speed = std::max(0.0, sm["carState"].getCarState().getCluSpeedMs() * (s->scene.is_metric ? MS_TO_KPH : MS_TO_MPH));
+  auto car_state = sm["carState"].getCarState();
+  float accel = car_state.getABasis();
+
+  QColor color = QColor(255, 255, 255, 230);
+
+  if(accel > 0) {
+    int a = (int)(255.f - (180.f * (accel/3.f)));
+    a = std::min(a, 255);
+    a = std::max(a, 80);
+    color = QColor(a, a, 255, 230);
+  }
+  else {
+    int a = (int)(255.f - (255.f * (-accel/4.f)));
+    a = std::min(a, 255);
+    a = std::max(a, 60);
+    color = QColor(255, a, a, 230);
+  }
 
   QString speed;
   speed.sprintf("%.0f", cur_speed);
   configFont(p, "Open Sans", 176, "Bold");
-  drawText(p, rect().center().x(), 230, speed);
+  drawTextWithColor(p, rect().center().x(), 230, speed, color);
+
   configFont(p, "Open Sans", 66, "Regular");
   drawText(p, rect().center().x(), 310, s->scene.is_metric ? "km/h" : "mph", 200);
 }
@@ -929,6 +947,12 @@ void NvgWindow::drawDebugText(QPainter &p) {
 
   y += height;
   str.sprintf("%.3f (%.3f/%.3f)\n", aReqValue, aReqValueMin, aReqValueMax);
+  p.drawText(text_x, y, str);
+
+  auto car_state = sm["carState"].getCarState();
+
+  y += height;
+  str.sprintf("aBasis: %.3f\n", car_state.getABasis());
   p.drawText(text_x, y, str);
 
   auto lead_radar = sm["radarState"].getRadarState().getLeadOne();
