@@ -5,7 +5,6 @@ from opendbc.can.parser import CANParser
 from opendbc.can.can_define import CANDefine
 from selfdrive.config import Conversions as CV
 from common.params import Params
-import copy
 
 GearShifter = car.CarState.GearShifter
 
@@ -37,7 +36,6 @@ class CarState(CarStateBase):
     self.cruise_unavail_cnt = 0
 
     self.apply_steer = 0.
-    self.hda = None
 
     # scc smoother
     self.acc_mode = False
@@ -197,6 +195,7 @@ class CarState(CarStateBase):
     self.scc11 = cp_scc.vl["SCC11"]
     self.scc12 = cp_scc.vl["SCC12"]
     self.mdps12 = cp_mdps.vl["MDPS12"]
+    self.lfahda_mfc = cp_cam.vl["LFAHDA_MFC"]
     self.park_brake = cp.vl["CGW1"]["CF_Gway_ParkBrakeSw"]
     self.steer_state = cp_mdps.vl["MDPS12"]["CF_Mdps_ToiActive"] #0 NOT ACTIVE, 1 ACTIVE
     self.cruise_unavail_cnt += 1 if cp.vl["TCS13"]["CF_VSM_Avail"] != 1 and cp.vl["TCS13"]["ACCEnable"] != 0 else -self.cruise_unavail_cnt
@@ -224,10 +223,6 @@ class CarState(CarStateBase):
     ret.tpms.fr = tpms_unit * cp.vl["TPMS11"]["PRESSURE_FR"]
     ret.tpms.rl = tpms_unit * cp.vl["TPMS11"]["PRESSURE_RL"]
     ret.tpms.rr = tpms_unit * cp.vl["TPMS11"]["PRESSURE_RR"]
-
-    # for activate HDA
-    if self.CP.carFingerprint in FEATURES["send_has_hda"]:
-      self.hda = copy.copy(cp_cam.vl["LFAHDA_MFC"])
 
     return ret
 
@@ -621,16 +616,14 @@ class CarState(CarStateBase):
         ("SCC12", 50),
       ]
 
-      # for activate HDA
-      if CP.carFingerprint in FEATURES["send_has_hda"]:
-        signals += [
-          ("HDA_USM", "LFAHDA_MFC"),
-          ("HDA_Active", "LFAHDA_MFC"),
-          ("HDA_Icon_State", "LFAHDA_MFC"),
-          ("HDA_LdwSysState", "LFAHDA_MFC"),
-          ("HDA_Icon_Wheel", "LFAHDA_MFC"),
-        ]
-        checks += [("LFAHDA_MFC", 20)]
+      signals += [
+        ("HDA_USM", "LFAHDA_MFC"),
+        ("HDA_Active", "LFAHDA_MFC"),
+        ("HDA_Icon_State", "LFAHDA_MFC"),
+        ("HDA_LdwSysState", "LFAHDA_MFC"),
+        ("HDA_Icon_Wheel", "LFAHDA_MFC"),
+      ]
+      checks += [("LFAHDA_MFC", 20)]
 
     return CANParser(DBC[CP.carFingerprint]["pt"], signals, checks, 2, enforce_checks=False)
 

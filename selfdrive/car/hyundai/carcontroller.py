@@ -231,9 +231,8 @@ class CarController():
                                       CS.out.gasPressed, CS.out.brakePressed, CS.out.cruiseState.standstill,
                                       self.car_fingerprint))
 
-        activated_hda = road_speed_limiter_get_active()
         can_sends.append(create_scc11(self.packer, frame, enabled, set_speed, lead_visible, self.scc_live, CS.scc11,
-                                      self.scc_smoother.active_cam, stock_cam, self.car_fingerprint, activated_hda))
+                                      self.scc_smoother.active_cam, stock_cam))
 
         if frame % 20 == 0 and CS.has_scc13:
           can_sends.append(create_scc13(self.packer, CS.scc13))
