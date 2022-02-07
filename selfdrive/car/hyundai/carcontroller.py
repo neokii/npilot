@@ -231,8 +231,9 @@ class CarController():
                                       CS.out.gasPressed, CS.out.brakePressed, CS.out.cruiseState.standstill,
                                       self.car_fingerprint))
 
+        activated_hda = road_speed_limiter_get_active()
         can_sends.append(create_scc11(self.packer, frame, enabled, set_speed, lead_visible, self.scc_live, CS.scc11,
-                                      self.scc_smoother.active_cam, stock_cam))
+                                      self.scc_smoother.active_cam, stock_cam, self.car_fingerprint, activated_hda))
 
         if frame % 20 == 0 and CS.has_scc13:
           can_sends.append(create_scc13(self.packer, CS.scc13))
@@ -260,8 +261,7 @@ class CarController():
       if self.car_fingerprint in FEATURES["send_lfa_mfa"]:
         can_sends.append(create_lfahda_mfc(self.packer, enabled, activated_hda))
       elif CS.mdps_bus == 0:
-        state = 2 if self.car_fingerprint in FEATURES["send_hda_state_2"] else 1
-        can_sends.append(create_hda_mfc(self.packer, activated_hda, state))
+        can_sends.append(create_hda_mfc(self.packer, activated_hda, CS, left_lane, right_lane))
 
     new_actuators = actuators.copy()
     new_actuators.steer = apply_steer / CarControllerParams.STEER_MAX
