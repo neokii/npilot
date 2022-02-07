@@ -655,13 +655,13 @@ void NvgWindow::drawSpeed(QPainter &p) {
   QColor color = QColor(255, 255, 255, 230);
 
   if(accel > 0) {
-    int a = (int)(255.f - (180.f * (accel/3.f)));
+    int a = (int)(255.f - (180.f * (accel/2.f)));
     a = std::min(a, 255);
     a = std::max(a, 80);
     color = QColor(a, a, 255, 230);
   }
   else {
-    int a = (int)(255.f - (255.f * (-accel/4.f)));
+    int a = (int)(255.f - (255.f * (-accel/3.f)));
     a = std::min(a, 255);
     a = std::max(a, 60);
     color = QColor(255, a, a, 230);
