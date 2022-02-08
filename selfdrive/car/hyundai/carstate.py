@@ -29,6 +29,7 @@ class CarState(CarStateBase):
     self.scc_bus = CP.sccBus
     self.has_scc13 = CP.hasScc13 or CP.carFingerprint in FEATURES["has_scc13"]
     self.has_scc14 = CP.hasScc14 or CP.carFingerprint in FEATURES["has_scc14"]
+    self.has_lfa_hda = CP.hasLfaHda
     self.leftBlinker = False
     self.rightBlinker = False
     self.cruise_main_button = 0
@@ -616,14 +617,15 @@ class CarState(CarStateBase):
         ("SCC12", 50),
       ]
 
-      signals += [
-        ("HDA_USM", "LFAHDA_MFC"),
-        ("HDA_Active", "LFAHDA_MFC"),
-        ("HDA_Icon_State", "LFAHDA_MFC"),
-        ("HDA_LdwSysState", "LFAHDA_MFC"),
-        ("HDA_Icon_Wheel", "LFAHDA_MFC"),
-      ]
-      checks += [("LFAHDA_MFC", 20)]
+      if CP.hasLfaHda:
+        signals += [
+          ("HDA_USM", "LFAHDA_MFC"),
+          ("HDA_Active", "LFAHDA_MFC"),
+          ("HDA_Icon_State", "LFAHDA_MFC"),
+          ("HDA_LdwSysState", "LFAHDA_MFC"),
+          ("HDA_Icon_Wheel", "LFAHDA_MFC"),
+        ]
+        checks += [("LFAHDA_MFC", 20)]
 
     return CANParser(DBC[CP.carFingerprint]["pt"], signals, checks, 2, enforce_checks=False)
 
