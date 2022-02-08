@@ -221,7 +221,7 @@ def thermald_thread(end_event, hw_queue):
   last_hw_state = HardwareState(
     network_type=NetworkType.none,
     network_strength=NetworkStrength.unknown,
-    network_info = None,
+    network_info=None,
     nvme_temps=[],
     modem_temps=[],
     wifi_address='N/A',
@@ -266,10 +266,13 @@ def thermald_thread(end_event, hw_queue):
         restart_triggered_ts = sec_since_boot()
 
     if sm.updated['pandaStates'] and len(pandaStates) > 0:
+
+      # Set ignition based on any panda connected
+      onroad_conditions["ignition"] = any(ps.ignitionLine or ps.ignitionCan for ps in pandaStates if ps.pandaType != log.PandaState.PandaType.unknown)
+
       pandaState = pandaStates[0]
 
       if pandaState.pandaType != log.PandaState.PandaType.unknown:
-        onroad_conditions["ignition"] = pandaState.ignitionLine or pandaState.ignitionCan
         panda_state_ts = sec_since_boot()
 
       in_car = pandaState.harnessStatus != log.PandaState.HarnessStatus.notConnected
