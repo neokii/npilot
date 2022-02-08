@@ -639,9 +639,9 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
                                             "",
                                             "../assets/offroad/icon_openpilot.png",
                                             this));
-  toggles.append(new ParamControl("WarningOverSpeedLimit",
-                                            "Warning when speeding",
-                                            "Warning when the current speed exceeds the speed limit.",
+  toggles.append(new ParamControl("HapticFeedbackWhenSpeedCamera",
+                                            "Haptic feedback (speed-cam alert)",
+                                            "Haptic feedback when a speed camera is detected",
                                             "../assets/offroad/icon_openpilot.png",
                                             this));
 

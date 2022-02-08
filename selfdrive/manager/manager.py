@@ -55,7 +55,7 @@ def manager_init() -> None:
     ("SccSmootherSyncGasPressed", "0"),
     ("StockNaviDecelEnabled", "0"),
     ("KeepSteeringTurnSignals", "0"),
-    ("WarningOverSpeedLimit", "0"),
+    ("HapticFeedbackWhenSpeedCamera", "0"),
     ("DisableOpFcw", "0"),
     ("ShowDebugUI", "0"),
     ("NewRadarInterface", "0"),

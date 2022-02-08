@@ -40,9 +40,9 @@ def process_hud_alert(enabled, fingerprint, visual_alert, left_lane, right_lane,
   left_lane_warning = 0
   right_lane_warning = 0
   if left_lane_depart:
-    left_lane_warning = 1 if fingerprint in SP_CARS else 2
+    left_lane_warning = 1 #if fingerprint in SP_CARS else 2
   if right_lane_depart:
-    right_lane_warning = 1 if fingerprint in SP_CARS else 2
+    right_lane_warning = 1 #if fingerprint in SP_CARS else 2
 
   return sys_warning, sys_state, left_lane_warning, right_lane_warning
 
@@ -72,10 +72,12 @@ class CarController():
     self.ldws_opt = param.get_bool('IsLdwsCar')
     self.stock_navi_decel_enabled = param.get_bool('StockNaviDecelEnabled')
     self.keep_steering_turn_signals = param.get_bool('KeepSteeringTurnSignals')
-    self.warning_over_speed_limit = param.get_bool('WarningOverSpeedLimit')
+    self.haptic_feedback_speed_camera = param.get_bool('HapticFeedbackWhenSpeedCamera')
 
     self.scc_smoother = SccSmoother()
     self.last_blinker_frame = 0
+    self.prev_active_cam = False
+    self.active_cam_timer = 0
 
   def update(self, c, enabled, CS, frame, CC, actuators, pcm_cancel_cmd, visual_alert,
              left_lane, right_lane, left_lane_depart, right_lane_depart, set_speed, lead_visible, controls):
@@ -102,15 +104,19 @@ class CarController():
 
     self.apply_steer_last = apply_steer
 
-    if self.warning_over_speed_limit:
-      recent_blinker = (controls.sm.frame - self.last_blinker_frame) * DT_CTRL < 5.0
-      if not recent_blinker and self.scc_smoother.over_speed_limit:
-        left_lane_depart = True
-        self.last_blinker_frame = controls.sm.frame
-
     sys_warning, sys_state, left_lane_warning, right_lane_warning = \
       process_hud_alert(enabled, self.car_fingerprint, visual_alert,
                         left_lane, right_lane, left_lane_depart, right_lane_depart)
+
+    if self.haptic_feedback_speed_camera:
+      if self.prev_active_cam != self.scc_smoother.active_cam:
+        self.prev_active_cam = self.scc_smoother.active_cam
+        if self.scc_smoother.active_cam:
+          self.active_cam_timer = int(1. / DT_CTRL)
+
+      if self.active_cam_timer > 0:
+        self.active_cam_timer -= 1
+        left_lane_warning = right_lane_warning = 1
 
     clu11_speed = CS.clu11["CF_Clu_Vanz"]
     enabled_speed = 38 if CS.is_set_speed_in_mph else 60
