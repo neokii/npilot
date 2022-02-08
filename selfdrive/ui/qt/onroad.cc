@@ -650,7 +650,7 @@ void NvgWindow::drawSpeed(QPainter &p) {
   const SubMaster &sm = *(s->sm);
   float cur_speed = std::max(0.0, sm["carState"].getCarState().getCluSpeedMs() * (s->scene.is_metric ? MS_TO_KPH : MS_TO_MPH));
   auto car_state = sm["carState"].getCarState();
-  float accel = car_state.getABasis();
+  float accel = car_state.getAEgo();
 
   QColor color = QColor(255, 255, 255, 230);
 
@@ -952,7 +952,7 @@ void NvgWindow::drawDebugText(QPainter &p) {
   auto car_state = sm["carState"].getCarState();
 
   y += height;
-  str.sprintf("aBasis: %.3f\n", car_state.getABasis());
+  str.sprintf("aEgo: %.3f\n", car_state.getAEgo());
   p.drawText(text_x, y, str);
 
   auto lead_radar = sm["radarState"].getRadarState().getLeadOne();
