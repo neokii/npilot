@@ -112,7 +112,7 @@ class CarController():
       if self.prev_active_cam != self.scc_smoother.active_cam:
         self.prev_active_cam = self.scc_smoother.active_cam
         if self.scc_smoother.active_cam:
-          self.active_cam_timer = int(1. / DT_CTRL)
+          self.active_cam_timer = int(1.5 / DT_CTRL)
 
       if self.active_cam_timer > 0:
         self.active_cam_timer -= 1
