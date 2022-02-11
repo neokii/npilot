@@ -18,10 +18,6 @@ from selfdrive.road_speed_limiter import road_speed_limiter_get_active
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 min_set_speed = 30 * CV.KPH_TO_MS
 
-
-SP_CARS = (CAR.GENESIS, CAR.GENESIS_G70, CAR.GENESIS_G80,
-           CAR.GENESIS_EQ900, CAR.GENESIS_EQ900_L, CAR.K9, CAR.GENESIS_G90)
-
 def process_hud_alert(enabled, fingerprint, visual_alert, left_lane, right_lane,
                       left_lane_depart, right_lane_depart):
 
@@ -40,9 +36,9 @@ def process_hud_alert(enabled, fingerprint, visual_alert, left_lane, right_lane,
   left_lane_warning = 0
   right_lane_warning = 0
   if left_lane_depart:
-    left_lane_warning = 1 #if fingerprint in SP_CARS else 2
+    left_lane_warning = 1
   if right_lane_depart:
-    right_lane_warning = 1 #if fingerprint in SP_CARS else 2
+    right_lane_warning = 1
 
   return sys_warning, sys_state, left_lane_warning, right_lane_warning
 
