@@ -213,7 +213,7 @@ void UIState::updateStatus() {
   }
 
   // Handle onroad/offroad transition
-  if (scene.started != started_prev) {
+  if (scene.started != started_prev || sm->frame == 1) {
     if (scene.started) {
       status = STATUS_DISENGAGED;
       scene.started_frame = sm->frame;
@@ -221,8 +221,6 @@ void UIState::updateStatus() {
       wide_camera = Hardware::TICI() ? Params().getBool("EnableWideCamera") : false;
     }
     started_prev = scene.started;
-    emit offroadTransition(!scene.started);
-  } else if (sm->frame == 1) {
     emit offroadTransition(!scene.started);
   }
 }
