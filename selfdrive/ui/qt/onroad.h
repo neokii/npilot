@@ -6,10 +6,8 @@
 #include "selfdrive/ui/qt/widgets/cameraview.h"
 #include "selfdrive/ui/ui.h"
 
-#ifdef QCOM2
 #include <QTimer>
 #include "selfdrive/ui/qt/screenrecorder/screenrecorder.h"
-#endif
 
 
 // ***** onroad widgets *****
@@ -99,12 +97,10 @@ private:
   QHBoxLayout* split;
 
   // neokii
-#ifdef QCOM2
 private:
   ScreenRecoder* recorder;
   std::shared_ptr<QTimer> record_timer;
   QPoint startPos;
-#endif
 
 private slots:
   void offroadTransition(bool offroad);
