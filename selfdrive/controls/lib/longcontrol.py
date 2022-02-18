@@ -58,27 +58,24 @@ class LongControl():
     self.pid.reset()
     self.v_pid = v_pid
 
-  def update(self, active, CS, CP, long_plan, accel_limits, rcv_frames, radarState):
+  def update(self, active, CS, CP, long_plan, accel_limits, t_since_plan, radarState):
     """Update longitudinal control. This updates the state machine and runs a PID loop"""
     # Interp control trajectory
-    # TODO estimate car specific lag, use .15s for now
     speeds = long_plan.speeds
     if len(speeds) == CONTROL_N:
+      v_target = interp(t_since_plan, T_IDXS[:CONTROL_N], speeds)
+      a_target = interp(t_since_plan, T_IDXS[:CONTROL_N], long_plan.accels)
 
       longitudinalActuatorDelayLowerBound = ntune_scc_get('longitudinalActuatorDelayLowerBound')
       longitudinalActuatorDelayUpperBound = ntune_scc_get('longitudinalActuatorDelayUpperBound')
 
-      actuator_delay_lower = longitudinalActuatorDelayLowerBound + (rcv_frames * DT_CTRL)
-      actuator_delay_upper = longitudinalActuatorDelayUpperBound + (rcv_frames * DT_CTRL)
+      v_target_lower = interp(longitudinalActuatorDelayLowerBound + t_since_plan, T_IDXS[:CONTROL_N], speeds)
+      a_target_lower = 2 * (v_target_lower - v_target) / longitudinalActuatorDelayLowerBound - a_target
 
-      v_target_lower = interp(actuator_delay_lower, T_IDXS[:CONTROL_N], speeds)
-      a_target_lower = 2 * (v_target_lower - speeds[0]) / actuator_delay_lower - long_plan.accels[0]
-
-      v_target_upper = interp(actuator_delay_upper, T_IDXS[:CONTROL_N], speeds)
-      a_target_upper = 2 * (v_target_upper - speeds[0]) / actuator_delay_upper - long_plan.accels[0]
+      v_target_upper = interp(longitudinalActuatorDelayUpperBound + t_since_plan, T_IDXS[:CONTROL_N], speeds)
+      a_target_upper = 2 * (v_target_upper - v_target) / longitudinalActuatorDelayUpperBound - a_target
       a_target = min(a_target_lower, a_target_upper)
 
-      v_target = speeds[0]
       v_target_future = speeds[-1]
     else:
       v_target = 0.0
