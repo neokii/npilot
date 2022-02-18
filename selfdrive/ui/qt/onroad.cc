@@ -455,15 +455,13 @@ void NvgWindow::drawHud(QPainter &p) {
   int scc_bus = car_params.getSccBus();
 
   QString infoText;
-  infoText.sprintf("AO(%.2f/%.2f) SR(%.2f) SRC(%.2f) SAD(%.2f) MDPS(%d) SCC(%d) LAD(%.2f/%.2f) SCC(%.2f/%.2f/%.2f)",
+  infoText.sprintf("AO(%.2f/%.2f) SR(%.2f) SRC(%.2f) SAD(%.2f) BUS(MDPS %d, SCC %d) SCC(%.2f/%.2f/%.2f)",
                       live_params.getAngleOffsetDeg(),
                       live_params.getAngleOffsetAverageDeg(),
                       controls_state.getSteerRatio(),
                       controls_state.getSteerRateCost(),
                       controls_state.getSteerActuatorDelay(),
                       mdps_bus, scc_bus,
-                      controls_state.getLongitudinalActuatorDelayLowerBound(),
-                      controls_state.getLongitudinalActuatorDelayUpperBound(),
                       controls_state.getSccGasFactor(),
                       controls_state.getSccBrakeFactor(),
                       controls_state.getSccCurvatureFactor()

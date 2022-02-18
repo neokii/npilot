@@ -172,12 +172,6 @@ class nTune():
     if self.checkValue("sccCurvatureFactor", 0.5, 1.5, 0.98):
       updated = True
 
-    if self.checkValue("longitudinalActuatorDelayLowerBound", 0.1, 1.5, 0.15):
-      updated = True
-
-    if self.checkValue("longitudinalActuatorDelayUpperBound", 0.1, 1.5, 0.3):
-      updated = True
-
     return updated
 
   def updateLQR(self):

@@ -595,8 +595,6 @@ struct ControlsState @0x97ff69c53601abf1 {
   sccGasFactor @68 :Float32;
   sccBrakeFactor @69 :Float32;
   sccCurvatureFactor @70 :Float32;
-  longitudinalActuatorDelayLowerBound @71 :Float32;
-  longitudinalActuatorDelayUpperBound @72 :Float32;
 
   sccStockCamAct @73 :Float32;
   sccStockCamStatus @74 :Float32;
