@@ -134,6 +134,13 @@ void ScreenRecoder::start(bool sound) {
   recording = true;
   frame = 0;
 #ifdef QCOM2
+
+  QWidget* widget = this;
+  while (widget->parentWidget() != Q_NULLPTR)
+    widget = widget->parentWidget();
+
+  rootWidget = widget;
+
   openEncoder(filename);
   encoding_thread = std::thread([=] { encoding_thread_func(); });
 #else
@@ -170,7 +177,7 @@ void ScreenRecoder::encoding_thread_func() {
             image.width(), image.height(),
             rgb_scale_buffer.get(), dst_width*4,
             dst_width, dst_height,
-            libyuv::kFilterBilinear);
+            libyuv::kFilterLinear);
 
       encoder->encode_frame_rgba(rgb_scale_buffer.get(), dst_width, dst_height, (uint64_t)nanos_since_boot());
     }
@@ -211,12 +218,10 @@ if(recording) {
   applyColor();
 
 #ifdef QCOM2
-  QWidget* widget = this;
-  while (widget->parentWidget() != Q_NULLPTR)
-    widget = widget->parentWidget();
-
-  QPixmap pixmap = widget->grab();
-  image_queue.push(pixmap.toImage());
+  if(rootWidget != nullptr) {
+    QPixmap pixmap = rootWidget->grab();
+    image_queue.push(pixmap.toImage());
+  }
 #endif
   }
 

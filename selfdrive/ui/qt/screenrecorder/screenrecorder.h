@@ -47,6 +47,7 @@ private:
 
   std::thread encoding_thread;
   BlockingQueue<QImage> image_queue;
+  QWidget* rootWidget;
   void encoding_thread_func();
   void openEncoder(const char* filename);
   void closeEncoder();
