@@ -85,7 +85,7 @@ class CarController():
                                                 CarControllerParams)
 
     # disable when temp fault is active, or below LKA minimum speed
-    lkas_active = c.active and not CS.out.steerWarning and abs(CS.out.steeringAngleDeg) < CS.CP.maxSteeringAngleDeg
+    lkas_active = c.active and not CS.out.steerFaultTemporary and abs(CS.out.steeringAngleDeg) < CS.CP.maxSteeringAngleDeg
 
     # Disable steering while turning blinker on and speed below 60 kph
     if CS.out.leftBlinker or CS.out.rightBlinker:
