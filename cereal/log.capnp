@@ -290,6 +290,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   networkType @22 :NetworkType;
   networkInfo @31 :NetworkInfo;
   networkStrength @24 :NetworkStrength;
+  networkMetered @41 :Bool;
   lastAthenaPingTime @32 :UInt64;
 
   started @11 :Bool;
@@ -324,7 +325,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   fanSpeedPercentDesired @10 :UInt16;
   screenBrightnessPercent @37 :Int8;
 
-  wifiIpAddress @41 :Text;
+  wifiIpAddress @42 :Text;
   
   struct ThermalZone {
     name @0 :Text;
