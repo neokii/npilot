@@ -162,8 +162,6 @@ class CarController():
 
     if pcm_cancel_cmd and (self.longcontrol and not self.mad_mode_enabled):
       can_sends.append(create_clu11(self.packer, CS.scc_bus, CS.clu11, Buttons.CANCEL, clu11_speed))
-    else:
-      can_sends.append(create_mdps12(self.packer, frame, CS.mdps12))
 
     # fix auto resume - by neokii
     if CS.out.cruiseState.standstill and not CS.out.gasPressed:
@@ -191,6 +189,9 @@ class CarController():
     # reset lead distnce after the car starts moving
     elif self.last_lead_distance != 0:
       self.last_lead_distance = 0
+
+    if CS.mdps_bus or self.car_fingerprint in FEATURES["send_mdps12"]:  # send mdps12 to LKAS to prevent LKAS error
+      can_sends.append(create_mdps12(self.packer, frame, CS.mdps12))
 
     # scc smoother
     self.scc_smoother.update(enabled, can_sends, self.packer, CC, CS, frame, controls)
