@@ -10,7 +10,7 @@ from threading import Thread
 from cereal import messaging
 from common.numpy_fast import clip
 from common.realtime import sec_since_boot
-from selfdrive.config import Conversions as CV
+from common.conversions import Conversions as CV
 
 CAMERA_SPEED_FACTOR = 1.05
 
