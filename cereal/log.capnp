@@ -994,6 +994,7 @@ struct LiveLocationKalman {
   gpsTimeOfWeek @14 :Float64;
   status @15 :Status;
   unixTimestampMillis @16 :Int64;
+  inputsOK @17 :Bool = true;
   posenetOK @18 :Bool = true;
   gpsOK @19 :Bool = true;
   sensorsOK @21 :Bool = true;
@@ -1012,9 +1013,6 @@ struct LiveLocationKalman {
     std @1 : List(Float64);
     valid @2 : Bool;
   }
-
-  # deprecated
-  inputsOKDEPRECATED @17 :Bool = true;
 }
 
 struct ProcLog {
@@ -1304,6 +1302,9 @@ struct DriverState {
   phoneUse @22 :Float32;
   occludedProb @23 :Float32;
 
+  readyProb @24 :List(Float32);
+  notReadyProb @25 :List(Float32);
+
   irPwrDEPRECATED @10 :Float32;
   descriptorDEPRECATED @1 :List(Float32);
   stdDEPRECATED @2 :Float32;
@@ -1313,6 +1314,7 @@ struct DriverMonitoringState @0xb83cda094a1da284 {
   events @0 :List(Car.CarEvent);
   faceDetected @1 :Bool;
   isDistracted @2 :Bool;
+  distractedType @17 :UInt32;
   awarenessStatus @3 :Float32;
   posePitchOffset @6 :Float32;
   posePitchValidCount @7 :UInt32;

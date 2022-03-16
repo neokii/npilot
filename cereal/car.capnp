@@ -157,6 +157,7 @@ struct CarState {
   # brake pedal, 0.0-1.0
   brake @5 :Float32;      # this is user pedal only
   brakePressed @6 :Bool;  # this is user pedal only
+  parkingBrake @39 :Bool;
   brakeHoldActive @38 :Bool;
 
   # steering wheel
@@ -200,11 +201,11 @@ struct CarState {
   leftBlindspot @33 :Bool; # Is there something blocking the left lane change
   rightBlindspot @34 :Bool; # Is there something blocking the right lane change
 
-  cluSpeedMs @39 :Float32;
-  cruiseGap @40 : Int32;
-  autoHold @41 : Int32;
-  tpms @42 : Tpms;
-  vCluRatio @43 :Float32;
+  cluSpeedMs @40 :Float32;
+  cruiseGap @41 : Int32;
+  autoHold @42 : Int32;
+  tpms @43 : Tpms;
+  vCluRatio @44 :Float32;
 
   struct Tpms {
     fl @0 :Float32;

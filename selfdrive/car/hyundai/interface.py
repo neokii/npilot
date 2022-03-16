@@ -357,8 +357,6 @@ class CarInterface(CarInterfaceBase):
       events.add(EventName.belowSteerSpeed)
     if self.CC.turning_indicator_alert:
       events.add(EventName.turningIndicatorOn)
-    if self.mad_mode_enabled and EventName.pedalPressed in events.events:
-      events.events.remove(EventName.pedalPressed)
 
   # handle button presses
     for b in ret.buttonEvents:
