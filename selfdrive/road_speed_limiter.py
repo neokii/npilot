@@ -36,9 +36,9 @@ class RoadLimitSpeedServer:
     broadcast.setDaemon(True)
     broadcast.start()
 
-    gps = Thread(target=self.gps_thread, args=[])
-    gps.setDaemon(True)
-    gps.start()
+    # gps = Thread(target=self.gps_thread, args=[])
+    # gps.setDaemon(True)
+    # gps.start()
 
   def gps_thread(self):
 
@@ -49,7 +49,7 @@ class RoadLimitSpeedServer:
           sm.update()
           if self.remote_addr is not None and sm.updated['gpsLocationExternal']:
             location = sm['gpsLocationExternal']
-            json_location = json.dumps({"location": [
+            json_location = json.dumps([
               location.latitude,
               location.longitude,
               location.altitude,
@@ -62,7 +62,7 @@ class RoadLimitSpeedServer:
               location.verticalAccuracy,
               location.bearingAccuracyDeg,
               location.speedAccuracy,
-            ]})
+            ])
 
             address = (self.remote_addr[0], Port.LOCATION_PORT)
             sock.sendto(json_location.encode(), address)
