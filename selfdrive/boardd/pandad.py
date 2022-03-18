@@ -38,31 +38,11 @@ def flash_panda(panda_serial: str) -> Panda:
     panda.flash()
     cloudlog.info("Done flashing")
 
-  #if panda.bootstub:
-  #  spinner = Spinner()
-  #  spinner.update("Restoring panda")
-  #  panda.recover()
-  #  spinner.close()
-
   if panda.bootstub:
-    spinner = Spinner()
-    spinner.update("Restoring panda")
-    h7 = panda.get_mcu_type() == MCU_TYPE_H7
-    panda.reset(enter_bootstub=True)
-    panda.reset(enter_bootloader=True)
-    time.sleep(1)
-    try:
-      if h7:
-        os.system("/usr/bin/dfu-util -d 0483:df11 -a 0 -s 0x08020000 -D /data/openpilot/panda/board/obj/panda_h7.bin.signed")
-        os.system("/usr/bin/dfu-util -d 0483:df11 -a 0 -s 0x08000000:leave -D /data/openpilot/panda/board/obj/bootstub.panda_h7.bin")
-      else:
-        os.system("/usr/bin/dfu-util -d 0483:df11 -a 0 -s 0x08004000 -D /data/openpilot/panda/board/obj/panda.bin.signed")
-        os.system("/usr/bin/dfu-util -d 0483:df11 -a 0 -s 0x08000000:leave -D /data/openpilot/panda/board/obj/bootstub.panda.bin")
-
-      panda.reset()
-      panda.reconnect()
-    finally:
-      spinner.close()
+    bootstub_version = panda.get_version()
+    cloudlog.info(f"Flashed firmware not booting, flashing development bootloader. Bootstub version: {bootstub_version}")
+    panda.recover()
+    cloudlog.info("Done flashing bootloader")
 
   if panda.bootstub:
     cloudlog.info("Panda still not booting, exiting")
