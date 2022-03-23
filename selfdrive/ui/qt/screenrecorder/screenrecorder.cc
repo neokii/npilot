@@ -49,7 +49,7 @@ ScreenRecoder::ScreenRecoder(QWidget *parent) : QPushButton(parent)
 #ifdef QCOM2
   rgb_buffer = std::make_unique<uint8_t[]>(src_width*src_height*4);
   rgb_scale_buffer = std::make_unique<uint8_t[]>(dst_width*dst_height*4);
-  encoder = std::make_unique<OmxEncoder>(path.c_str(), dst_width, dst_height, UI_FREQ, 4*1024*1024, false, false);
+  encoder = std::make_unique<OmxEncoder>(path.c_str(), dst_width, dst_height, UI_FREQ, 2*1024*1024, false, false);
 #endif
 
   soundStart.setSource(QUrl::fromLocalFile("../assets/sounds/start_record.wav"));
@@ -152,7 +152,7 @@ void ScreenRecoder::start(bool sound) {
     mkdir(videos_dir,0700);
   }
 
-  snprintf(cmd,sizeof(cmd),"screenrecord --size 1280x720 --bit-rate 3000000 %s/%s&", videos_dir, filename);
+  snprintf(cmd,sizeof(cmd),"screenrecord --size 1280x720 --bit-rate 2000000 %s/%s&", videos_dir, filename);
   system(cmd);
 #endif
 
