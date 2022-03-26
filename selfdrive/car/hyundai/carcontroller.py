@@ -205,14 +205,18 @@ class CarController:
           set_speed = min_set_speed
         set_speed *= CV.MS_TO_MPH if CS.is_set_speed_in_mph else CV.MS_TO_KPH
 
+        accel = actuators.accel if CC.longActive else 0
+
+        if accel < 0:
+          accel = interp(accel - CS.out.aEgo, [-1.0, -0.5], [1.3 * accel, accel])
+
         stopping = controls.LoC.long_control_state == LongCtrlState.stopping
-        apply_accel = clip(actuators.accel if CC.longActive else 0,
-                           CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
-        apply_accel = self.scc_smoother.get_apply_accel(CS, controls.sm, apply_accel, stopping)
+        accel = clip(accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
+        accel = self.scc_smoother.get_apply_accel(CS, controls.sm, accel, stopping)
 
-        self.accel = apply_accel
+        self.accel = accel
 
-        controls.apply_accel = apply_accel
+        controls.apply_accel = accel
         aReqValue = CS.scc12["aReqValue"]
         controls.aReqValue = aReqValue
 
@@ -225,7 +229,7 @@ class CarController:
         if self.stock_navi_decel_enabled:
           controls.sccStockCamAct = CS.scc11["Navi_SCC_Camera_Act"]
           controls.sccStockCamStatus = CS.scc11["Navi_SCC_Camera_Status"]
-          apply_accel, stock_cam = self.scc_smoother.get_stock_cam_accel(apply_accel, aReqValue, CS.scc11)
+          accel, stock_cam = self.scc_smoother.get_stock_cam_accel(accel, aReqValue, CS.scc11)
         else:
           controls.sccStockCamAct = 0
           controls.sccStockCamStatus = 0
@@ -237,7 +241,7 @@ class CarController:
         self.scc12_cnt += 1
         self.scc12_cnt %= 0xF
 
-        can_sends.append(create_scc12(self.packer, apply_accel, CC.enabled, self.scc12_cnt, self.scc_live, CS.scc12,
+        can_sends.append(create_scc12(self.packer, accel, CC.enabled, self.scc12_cnt, self.scc_live, CS.scc12,
                                       CS.out.gasPressed, CS.out.brakePressed, CS.out.cruiseState.standstill,
                                       self.car_fingerprint))
 
@@ -258,8 +262,10 @@ class CarController:
           else:
             obj_gap = 0
 
+          jerk = clip(2.0 * (accel - CS.out.aEgo), -12.7, 12.7)
+
           can_sends.append(
-            create_scc14(self.packer, CC.enabled, CS.out.vEgo, acc_standstill, apply_accel, CS.out.gasPressed,
-                         obj_gap, CS.scc14))
+            create_scc14(self.packer, CC.enabled, CS.out.vEgo, stopping, acc_standstill, accel, CS.out.gasPressed,
+                         obj_gap, jerk, CS.scc14))
     else:
       self.scc12_cnt = -1

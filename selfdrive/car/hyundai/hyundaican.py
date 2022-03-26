@@ -176,26 +176,15 @@ def create_scc13(packer, scc13):
   values = copy.copy(scc13)
   return packer.make_can_msg("SCC13", 0, values)
 
-def create_scc14(packer, enabled, e_vgo, standstill, accel, gaspressed, objgap, scc14):
+def create_scc14(packer, enabled, e_vgo, stopping, standstill, accel, gas_pressed, objgap, jerk, scc14):
   values = copy.copy(scc14)
 
-  # from xps-genesis
-  if enabled:
-    values["ACCMode"] = 2 if gaspressed and (accel > -0.2) else 1
-    values["ObjGap"] = objgap
-    if standstill:
-      values["JerkUpperLimit"] = 0.5
-      values["JerkLowerLimit"] = 10.
-      values["ComfortBandUpper"] = 0.
-      values["ComfortBandLower"] = 0.
-      if e_vgo > 0.27:
-        values["ComfortBandUpper"] = 2.
-        values["ComfortBandLower"] = 0.
-    else:
-      values["JerkUpperLimit"] = 50.
-      values["JerkLowerLimit"] = 50.
-      values["ComfortBandUpper"] = 50.
-      values["ComfortBandLower"] = 50.
+  values["ACCMode"] = 2 if enabled and gas_pressed else 1 if enabled else 4, # stock will always be 4 instead of 0 after first disengage
+  values["ObjGap"] = objgap
+  values["ComfortBandUpper"] = 0.
+  values["ComfortBandLower"] = 0.
+  values["JerkUpperLimit"] = max(jerk, 1.0) if (enabled and not stopping) else 0,  # stock usually is 1.0 but sometimes uses higher values
+  values["JerkLowerLimit"] = max(-jerk, 1.0) if enabled else 0,  # stock usually is 0.5 but sometimes uses higher values
 
   return packer.make_can_msg("SCC14", 0, values)
 
