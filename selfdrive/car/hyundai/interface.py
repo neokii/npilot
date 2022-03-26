@@ -59,8 +59,6 @@ class CarInterface(CarInterfaceBase):
     ret.steerRateCost = 0.35
 
     ret.steerLimitTimer = 2.5
-    ret.steerMaxBP = [0.]
-    ret.steerMaxV = [2.]
 
     # longitudinal
     ret.longitudinalTuning.kpBP = [0., 5.*CV.KPH_TO_MS, 10.*CV.KPH_TO_MS, 20.*CV.KPH_TO_MS, 130.*CV.KPH_TO_MS]

@@ -205,7 +205,7 @@ bool addr_safety_check(CANPacket_t *to_push,
 
 void generic_rx_checks(bool stock_ecu_detected) {
   // exit controls on rising edge of gas press
-  if (gas_pressed && !gas_pressed_prev && !(unsafe_mode & UNSAFE_DISABLE_DISENGAGE_ON_GAS)) {
+  if (gas_pressed && !gas_pressed_prev && !(alternative_experience & ALT_EXP_DISABLE_DISENGAGE_ON_GAS)) {
     controls_allowed = 0;
   }
   gas_pressed_prev = gas_pressed;
@@ -248,7 +248,6 @@ const safety_hook_config safety_hook_registry[] = {
   {SAFETY_SUBARU, &subaru_hooks},
   {SAFETY_VOLKSWAGEN_MQB, &volkswagen_mqb_hooks},
   {SAFETY_NISSAN, &nissan_hooks},
-  {SAFETY_NOOUTPUT, &nooutput_hooks},
   {SAFETY_MAZDA, &mazda_hooks},*/
   {SAFETY_NOOUTPUT, &nooutput_hooks},
   {SAFETY_HYUNDAI, &hyundai_hooks},
@@ -277,6 +276,7 @@ int set_safety_hooks(uint16_t mode, int16_t param) {
   vehicle_speed = 0;
   vehicle_moving = false;
   acc_main_on = false;
+  cruise_button_prev = 0;
   desired_torque_last = 0;
   rt_torque_last = 0;
   ts_angle_last = 0;
