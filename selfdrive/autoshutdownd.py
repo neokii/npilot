@@ -21,10 +21,10 @@ def main():
     else:
       shutdown_count = 0
 
-      print('current', shutdown_count, 'shutdown_at', shutdown_at)
+    print('current', shutdown_count, 'shutdown_at', shutdown_at)
 
-      if shutdown_count >= shutdown_at > 0:
-        os.system('LD_LIBRARY_PATH="" svc power shutdown')
+    if shutdown_count >= shutdown_at > 0:
+      os.system('LD_LIBRARY_PATH="" svc power shutdown')
 
     time.sleep(5)
 
