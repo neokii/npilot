@@ -138,6 +138,9 @@ class nTune():
     if self.checkValue("steerRateCost", 0.1, 1.5, 0.35):
       updated = True
 
+    if self.checkValue("pathOffset", -1.0, 1.0, 0.0):
+      updated = True
+
     return updated
 
   def checkValidLQR(self):
