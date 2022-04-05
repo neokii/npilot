@@ -66,6 +66,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     accFaulted @51;
     sensorDataInvalid @52;
     commIssue @53;
+    commIssueAvgFreq @109;
     tooDistracted @54;
     posenetInvalid @55;
     soundsUnavailable @56;
@@ -95,6 +96,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     deviceFalling @90;
     fanMalfunction @91;
     cameraMalfunction @92;
+    cameraFrameRate @110;
     gpsMalfunction @94;
     processNotRunning @95;
     dashcamMode @96;
@@ -131,10 +133,10 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     startupOneplusDEPRECATED @82;
     startupFuzzyFingerprintDEPRECATED @97;
     
-    turningIndicatorOn @109;
-    autoLaneChange @110;
-    slowingDownSpeed @111;
-    slowingDownSpeedSound @112;
+    turningIndicatorOn @111;
+    autoLaneChange @112;
+    slowingDownSpeed @113;
+    slowingDownSpeedSound @114;
   }
 }
 
@@ -465,6 +467,7 @@ struct CarParams {
     pid @26 :LateralPIDTuning;
     indi @27 :LateralINDITuning;
     lqr @40 :LateralLQRTuning;
+    torque @67 :LateralTorqueTuning;
   }
 
   steerLimitAlert @28 :Bool;
@@ -500,16 +503,16 @@ struct CarParams {
     safetyParam @1 :Int16;
   }
   
-  mdpsBus @67: Int8;
-  sasBus @68: Int8;
-  sccBus @69: Int8;
-  enableAutoHold @70 :Bool;
-  hasScc13 @71 :Bool;
-  hasScc14 @72 :Bool;
-  hasEms @73 :Bool;
-  hasLfaHda @74 :Bool;
-  steerFaultMaxAngle @75 :Int16;
-  steerFaultMaxFrames @76 :Int16;
+  mdpsBus @68: Int8;
+  sasBus @69: Int8;
+  sccBus @70: Int8;
+  enableAutoHold @71 :Bool;
+  hasScc13 @72 :Bool;
+  hasScc14 @73 :Bool;
+  hasEms @74 :Bool;
+  hasLfaHda @75 :Bool;
+  steerFaultMaxAngle @76 :Int16;
+  steerFaultMaxFrames @77 :Int16;
 
   struct LateralParams {
     torqueBP @0 :List(Int32);
@@ -521,6 +524,14 @@ struct CarParams {
     kpV @1 :List(Float32);
     kiBP @2 :List(Float32);
     kiV @3 :List(Float32);
+    kf @4 :Float32;
+  }
+
+  struct LateralTorqueTuning {
+    useSteeringAngle @0 :Bool;
+    kp @1 :Float32;
+    ki @2 :Float32;
+    friction @3 :Float32;
     kf @4 :Float32;
   }
 
@@ -637,6 +648,8 @@ struct CarParams {
     programmedFuelInjection @14;
     electricBrakeBooster @15;
     shiftByWire @16;
+
+    debug @17;
   }
 
   enum FingerprintSource {
