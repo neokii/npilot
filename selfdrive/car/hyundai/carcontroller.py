@@ -78,6 +78,13 @@ class CarController:
     self.active_cam_timer = 0
     self.last_active_cam_frame = 0
 
+    self.angle_limit_counter = 0
+    self.cut_steer_frames = 0
+    self.cut_steer = False
+
+    self.steer_fault_max_angle = CP.steerFaultMaxAngle
+    self.steer_fault_max_frames = CP.steerFaultMaxFrames
+
   def update(self, CC, CS, controls):
     actuators = CC.actuators
     hud_control = CC.hudControl
@@ -127,15 +134,36 @@ class CarController:
 
     self.lkas11_cnt = (self.lkas11_cnt + 1) % 0x10
 
+    cut_steer_temp = False
+
+    if self.steer_fault_max_angle > 0:
+      if lkas_active and abs(CS.out.steeringAngleDeg) > self.steer_fault_max_angle:
+        self.angle_limit_counter += 1
+      else:
+        self.angle_limit_counter = 0
+
+      # stop requesting torque to avoid 90 degree fault and hold torque with induced temporary fault
+      # two cycles avoids race conditions every few minutes
+      if self.angle_limit_counter > self.steer_fault_max_frames:
+        self.cut_steer = True
+      elif self.cut_steer_frames > 1:
+        self.cut_steer_frames = 0
+        self.cut_steer = False
+
+      if self.cut_steer:
+        cut_steer_temp = True
+        self.angle_limit_counter = 0
+        self.cut_steer_frames += 1
+
     can_sends = []
     can_sends.append(create_lkas11(self.packer, self.frame, self.car_fingerprint, apply_steer, lkas_active,
                                    CS.lkas11, sys_warning, sys_state, CC.enabled, hud_control.leftLaneVisible, hud_control.rightLaneVisible,
-                                   left_lane_warning, right_lane_warning, 0, self.ldws_opt))
+                                   left_lane_warning, right_lane_warning, 0, self.ldws_opt, cut_steer_temp))
 
     if CS.mdps_bus or CS.scc_bus == 1:  # send lkas11 bus 1 if mdps or scc is on bus 1
       can_sends.append(create_lkas11(self.packer, self.frame, self.car_fingerprint, apply_steer, lkas_active,
                                      CS.lkas11, sys_warning, sys_state, CC.enabled, hud_control.leftLaneVisible, hud_control.rightLaneVisible,
-                                     left_lane_warning, right_lane_warning, 1, self.ldws_opt))
+                                     left_lane_warning, right_lane_warning, 1, self.ldws_opt, cut_steer_temp))
 
     if self.frame % 2 and CS.mdps_bus: # send clu11 to mdps if it is not on bus 0
       can_sends.append(create_clu11(self.packer, CS.mdps_bus, CS.clu11, Buttons.NONE, enabled_speed))
