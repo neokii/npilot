@@ -838,20 +838,20 @@ void NvgWindow::drawRestAreaItem(QPainter &p, int yPos, capnp::Text::Reader imag
   int y = rc.top() + my;
 
   configFont(p, "Open Sans", 60, "Bold");
-  p.drawText(x, y+60+7, title.cStr());
+  p.drawText(x, y+60+5, title.cStr());
 
   QPixmap icon = get_icon_iol_com(image.cStr());
   p.drawPixmap(x, y + box_height/2 + 5, icon_size, icon_size, icon);
 
-  configFont(p, "Open Sans", 48, "Bold");
-  p.drawText(x + icon_size + 15, y + box_height/2 + 48 + 7, oilPrice.cStr());
+  configFont(p, "Open Sans", 50, "Bold");
+  p.drawText(x + icon_size + 15, y + box_height/2 + 50 + 5, oilPrice.cStr());
 
-  configFont(p, "Open Sans", 52, "Bold");
+  configFont(p, "Open Sans", 60, "Bold");
 
   QFontMetrics fm(p.font());
   QRect rect = fm.boundingRect(distance.cStr());
 
-  p.drawText(rc.left()+rc.width()-rect.width()-mx-5, y + box_height/2 + 52 + 4, distance.cStr());
+  p.drawText(rc.left()+rc.width()-rect.width()-mx-5, y + box_height/2 + 60, distance.cStr());
 }
 
 void NvgWindow::drawTurnSignals(QPainter &p) {
