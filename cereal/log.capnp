@@ -1766,6 +1766,14 @@ struct RoadLimitSpeed {
     sectionLimitSpeed @6 :Int16;
     sectionLeftDist @7 :Int16;
     camSpeedFactor @8 :Float32;
+    restArea @9 :List(RestArea);
+
+    struct RestArea {
+      image @0 :Text;
+      title @1 :Text;
+      oilPrice @2 :Text;
+      distance @3 :Text;
+    }
 }
 
 struct Event {

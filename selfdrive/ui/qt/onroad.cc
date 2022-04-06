@@ -404,7 +404,7 @@ void NvgWindow::drawText2(QPainter &p, int x, int y, int flags, const QString &t
   QRect rect = fm.boundingRect(text);
   rect.adjust(-1, -1, 1, 1);
   p.setPen(color);
-  p.drawText(QRect(x, y, rect.width(), rect.height()), flags, text);
+  p.drawText(QRect(x, y, rect.width()+1, rect.height()), flags, text);
 }
 
 void NvgWindow::drawHud(QPainter &p) {
@@ -436,6 +436,7 @@ void NvgWindow::drawHud(QPainter &p) {
   drawMaxSpeed(p);
   drawSpeed(p);
   drawSpeedLimit(p);
+  drawRestArea(p);
   drawTurnSignals(p);
   drawGpsStatus(p);
 
@@ -771,6 +772,86 @@ void NvgWindow::drawSpeedLimit(QPainter &p) {
       p.drawText(rect, Qt::AlignCenter, "CAM");
     }
   }
+}
+
+QPixmap NvgWindow::get_icon_iol_com(const char* key) {
+  auto item = ic_oil_com.find(key);
+  if(item == ic_oil_com.end()) {
+    QString str;
+    str.sprintf("../assets/images/oil_com/%s.png", key);
+
+    QPixmap icon = QPixmap(str);
+    ic_oil_com[key] = icon;
+    return icon;
+  }
+  else
+    return item.value();
+}
+
+void NvgWindow::drawRestArea(QPainter &p) {
+  if(width() < 1850)
+    return;
+
+  const SubMaster &sm = *(uiState()->sm);
+  auto roadLimitSpeed = sm["roadLimitSpeed"].getRoadLimitSpeed();
+  auto restAreaList = roadLimitSpeed.getRestArea();
+
+  int length = std::size(restAreaList);
+
+  int yPos = 0;
+  for(int i = length-1; i >= 0; i--) {
+    auto restArea = restAreaList[i];
+    auto image = restArea.getImage();
+    auto title = restArea.getTitle();
+    auto oilPrice = restArea.getOilPrice();
+    auto distance = restArea.getDistance();
+
+    if(title.size() > 0 && distance.size() > 0) {
+      drawRestAreaItem(p, yPos, image, title, oilPrice, distance, i == 0);
+      yPos += 200 + 25;
+    }
+  }
+}
+
+void NvgWindow::drawRestAreaItem(QPainter &p, int yPos, capnp::Text::Reader image, capnp::Text::Reader title,
+        capnp::Text::Reader oilPrice, capnp::Text::Reader distance, bool lastItem) {
+
+  int mx = 20;
+  int my = 5;
+
+  int box_width = 580;
+  int box_height = 200;
+
+  int icon_size = 70;
+
+  //QRect rc(30, 30, 184, 202); // MAX box
+  QRect rc(184+30+30, 30 + yPos, box_width, box_height);
+  p.setBrush(QColor(0, 0, 0, 100));
+  p.drawRoundedRect(rc, 5, 5);
+
+  if(lastItem)
+    p.setPen(QColor(255, 255, 255, 255));
+  else
+    p.setPen(QColor(255, 255, 255, 160));
+
+  int x = rc.left() + mx;
+  int y = rc.top() + my;
+
+  configFont(p, "Open Sans", 60, "Bold");
+  p.drawText(x, y+60+5, title.cStr());
+
+  QPixmap icon = get_icon_iol_com(image.cStr());
+  p.drawPixmap(x, y + box_height/2 + 5, icon_size, icon_size, icon);
+
+  configFont(p, "Open Sans", 50, "Bold");
+  p.drawText(x + icon_size + 15, y + box_height/2 + 50 + 5, oilPrice.cStr());
+
+  configFont(p, "Open Sans", 60, "Bold");
+
+  QFontMetrics fm(p.font());
+  QRect rect = fm.boundingRect(distance.cStr());
+
+  p.drawText(rc.left()+rc.width()-rect.width()-mx-5, y + box_height/2 + 60, distance.cStr());
 }
 
 void NvgWindow::drawTurnSignals(QPainter &p) {

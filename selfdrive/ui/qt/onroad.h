@@ -8,6 +8,7 @@
 #include "selfdrive/ui/ui.h"
 
 #include <QTimer>
+#include <QMap>
 #include "selfdrive/ui/qt/screenrecorder/screenrecorder.h"
 
 
@@ -69,14 +70,22 @@ protected:
   QPixmap ic_turn_signal_r;
   QPixmap ic_satellite;
 
+  QMap<QString, QPixmap> ic_oil_com;
+
   void drawMaxSpeed(QPainter &p);
   void drawSpeed(QPainter &p);
   void drawBottomIcons(QPainter &p);
   void drawSpeedLimit(QPainter &p);
+  void drawRestArea(QPainter &p);
   void drawTurnSignals(QPainter &p);
   void drawGpsStatus(QPainter &p);
   void drawDebugText(QPainter &p);
   void drawHud(QPainter &p);
+
+private:
+  QPixmap get_icon_iol_com(const char* key);
+  void drawRestAreaItem(QPainter &p, int yPos, capnp::Text::Reader image, capnp::Text::Reader title,
+                        capnp::Text::Reader oilPrice, capnp::Text::Reader distance, bool lastItem);
 };
 
 // container for all onroad widgets
