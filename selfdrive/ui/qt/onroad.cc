@@ -819,7 +819,7 @@ void NvgWindow::drawRestAreaItem(QPainter &p, int yPos, capnp::Text::Reader imag
   int mx = 20;
   int my = 5;
 
-  int box_width = 580;
+  int box_width = Hardware::TICI() ? 580 : 510;
   int box_height = 200;
 
   int icon_size = 70;
