@@ -211,6 +211,7 @@ struct CarState {
   autoHold @42 : Int32;
   tpms @43 : Tpms;
   vCluRatio @44 :Float32;
+  aBasis @45 :Float32;
 
   struct Tpms {
     fl @0 :Float32;

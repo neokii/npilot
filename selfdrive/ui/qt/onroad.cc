@@ -986,7 +986,7 @@ void NvgWindow::drawDebugText(QPainter &p) {
 
   auto controls_state = sm["controlsState"].getControlsState();
   auto car_control = sm["carControl"].getCarControl();
-  //auto car_state = sm["carState"].getCarState();
+  auto car_state = sm["carState"].getCarState();
 
   float applyAccel = controls_state.getApplyAccel();
 
@@ -997,6 +997,8 @@ void NvgWindow::drawDebugText(QPainter &p) {
   //int sccStockCamAct = (int)controls_state.getSccStockCamAct();
   //int sccStockCamStatus = (int)controls_state.getSccStockCamStatus();
 
+  float vEgo = car_state.getVEgo();
+  float vEgoRaw = car_state.getVEgoRaw();
   int longControlState = (int)controls_state.getLongControlState();
   float vPid = controls_state.getVPid();
   float upAccelCmd = controls_state.getUpAccelCmd();
@@ -1014,7 +1016,11 @@ void NvgWindow::drawDebugText(QPainter &p) {
   p.drawText(text_x, y, str);
 
   y += height;
-  str.sprintf("vPid: %.3f(%.1f)\n", vPid, vPid * 3.6f);
+  str.sprintf("vEgo: %.2f/%.2f\n", vEgo*3.6f, vEgoRaw*3.6f);
+  p.drawText(text_x, y, str);
+
+  y += height;
+  str.sprintf("vPid: %.2f/%.2f\n", vPid, vPid*3.6f);
   p.drawText(text_x, y, str);
 
   y += height;
@@ -1041,10 +1047,8 @@ void NvgWindow::drawDebugText(QPainter &p) {
   str.sprintf("%.3f (%.3f/%.3f)\n", aReqValue, aReqValueMin, aReqValueMax);
   p.drawText(text_x, y, str);
 
-  auto car_state = sm["carState"].getCarState();
-
   y += height;
-  str.sprintf("aEgo: %.3f\n", car_state.getAEgo());
+  str.sprintf("aEgo: %.3f, %.3f\n", car_state.getAEgo(), car_state.getABasis());
   p.drawText(text_x, y, str);
 
   auto lead_radar = sm["radarState"].getRadarState().getLeadOne();
