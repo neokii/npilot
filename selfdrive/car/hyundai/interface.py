@@ -167,7 +167,15 @@ class CarInterface(CarInterfaceBase):
       ret.mass = 1570. + STD_CARGO_KG
       ret.wheelbase = 2.845
       ret.centerToFront = ret.wheelbase * 0.385
-      ret.steerRatio = 17.
+      ret.steerRatio = 16.
+
+      #ret.lateralTuning.init('pid')
+      #ret.lateralTuning.pid.kf = 0.00005
+
+      #ret.lateralTuning.pid.kpBP, ret.lateralTuning.pid.kpV = [[0.], [0.2]]
+      #ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kiV = [[0.], [0.03]]
+      #ret.lateralTuning.pid.kdBP, ret.lateralTuning.pid.kdV = [[0.], [0.1]]
+
     elif candidate in [CAR.GRANDEUR_IG_FL, CAR.GRANDEUR_IG_FL_HEV]:
       tire_stiffness_factor = 0.8
       ret.mass = 1600. + STD_CARGO_KG

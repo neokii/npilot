@@ -211,6 +211,7 @@ struct CarState {
   autoHold @42 : Int32;
   tpms @43 : Tpms;
   vCluRatio @44 :Float32;
+  aBasis @45 :Float32;
 
   struct Tpms {
     fl @0 :Float32;
@@ -525,7 +526,9 @@ struct CarParams {
     kpV @1 :List(Float32);
     kiBP @2 :List(Float32);
     kiV @3 :List(Float32);
-    kf @4 :Float32;
+    kdBP @4 :List(Float32);
+    kdV @5 :List(Float32);
+    kf @6 :Float32;
   }
 
   struct LateralTorqueTuning {
