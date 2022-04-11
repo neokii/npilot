@@ -45,6 +45,7 @@ class CarInterface(CarInterfaceBase):
     ret.steerFaultMaxFrames = 90
 
     # lateral
+    """
     ret.lateralTuning.init('lqr')
 
     ret.lateralTuning.lqr.scale = 1600.
@@ -56,6 +57,15 @@ class CarInterface(CarInterfaceBase):
     ret.lateralTuning.lqr.c = [1., 0.]
     ret.lateralTuning.lqr.k = [-110., 451.]
     ret.lateralTuning.lqr.l = [0.33, 0.318]
+    """
+
+    ret.lateralTuning.init('torque')
+    ret.lateralTuning.torque.useSteeringAngle = True
+    ret.lateralTuning.torque.kp = 1.4
+    ret.lateralTuning.torque.kf = 0.08
+    ret.lateralTuning.torque.friction = 0.06
+
+
 
     ret.steerRatio = 16.5
     ret.steerActuatorDelay = 0.2
