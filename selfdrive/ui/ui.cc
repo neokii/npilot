@@ -197,6 +197,7 @@ void ui_update_params(UIState *s) {
   Params params;
   s->scene.is_metric = params.getBool("IsMetric");
   s->show_debug = params.getBool("ShowDebugUI");
+  s->lat_control = std::string(Params().get("LateralControl"));
 }
 
 void UIState::updateStatus() {

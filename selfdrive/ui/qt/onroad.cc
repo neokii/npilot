@@ -237,8 +237,7 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
 
 // NvgWindow
 
-NvgWindow::NvgWindow(VisionStreamType type, QWidget* parent) : fps_filter(UI_FREQ, 3, 1. / UI_FREQ), CameraViewWidget("camerad", type, true, parent) {
-
+NvgWindow::NvgWindow(VisionStreamType type, QWidget* parent) : last_update_params(0), fps_filter(UI_FREQ, 3, 1. / UI_FREQ), CameraViewWidget("camerad", type, true, parent) {
 }
 
 void NvgWindow::initializeGL() {
@@ -382,7 +381,12 @@ void NvgWindow::paintEvent(QPaintEvent *event) {
 void NvgWindow::showEvent(QShowEvent *event) {
   CameraViewWidget::showEvent(event);
 
-  ui_update_params(uiState());
+  auto now = millis_since_boot();
+  if(now - last_update_params > 1000*5) {
+    last_update_params = now;
+    ui_update_params(uiState());
+  }
+
   prev_draw_t = millis_since_boot();
 }
 
@@ -476,7 +480,8 @@ void NvgWindow::drawHud(QPainter &p) {
   int scc_bus = car_params.getSccBus();
 
   QString infoText;
-  infoText.sprintf("AO(%.2f/%.2f) SR(%.2f) SRC(%.2f) SAD(%.2f) BUS(MDPS %d, SCC %d) SCC(%.2f/%.2f/%.2f)",
+  infoText.sprintf("%s AO(%.2f/%.2f) SR(%.2f) SRC(%.2f) SAD(%.2f) BUS(MDPS %d, SCC %d) SCC(%.2f/%.2f/%.2f)",
+                      s->lat_control.c_str(),
                       live_params.getAngleOffsetDeg(),
                       live_params.getAngleOffsetAverageDeg(),
                       controls_state.getSteerRatio(),
