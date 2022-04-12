@@ -783,7 +783,7 @@ LateralControl::LateralControl(QWidget* parent): QWidget(parent) {
   QScroller::grabGesture(list->viewport(), QScroller::LeftMouseButtonGesture);
   list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
-  QStringList items = {"LQR", "TORQUE"};
+  QStringList items = {"LQR", "INDI", "TORQUE"};
   list->addItems(items);
   list->setCurrentRow(0);
 

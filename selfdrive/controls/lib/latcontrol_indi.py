@@ -6,6 +6,7 @@ from common.filter_simple import FirstOrderFilter
 from common.numpy_fast import clip, interp
 from common.realtime import DT_CTRL
 from selfdrive.controls.lib.latcontrol import LatControl, MIN_STEER_SPEED
+from selfdrive.ntune import nTune
 
 
 class LatControlINDI(LatControl):
@@ -41,6 +42,7 @@ class LatControlINDI(LatControl):
 
     self.steer_filter = FirstOrderFilter(0., self.RC, DT_CTRL)
     self.reset()
+    self.tune = nTune(CP, self)
 
   @property
   def RC(self):
@@ -64,6 +66,7 @@ class LatControlINDI(LatControl):
     self.speed = 0.
 
   def update(self, active, CS, CP, VM, params, last_actuators, desired_curvature, desired_curvature_rate, llk):
+    self.tune.check()
     self.speed = CS.vEgo
     # Update Kalman filter
     y = np.array([[math.radians(CS.steeringAngleDeg)], [math.radians(CS.steeringRateDeg)]])

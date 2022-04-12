@@ -45,14 +45,25 @@ class CarInterface(CarInterfaceBase):
     ret.steerFaultMaxFrames = 90
 
     # lateral
-    lateral_control = Params().get("LateralControl")
+    lateral_control = Params().get("LateralControl", encoding='utf-8')
     if lateral_control == 'TORQUE':
       ret.lateralTuning.init('torque')
       ret.lateralTuning.torque.useSteeringAngle = True
-      ret.lateralTuning.torque.kp = 1.4
-      ret.lateralTuning.torque.kf = 0.3
-      ret.lateralTuning.torque.kd = 0.7
+
+      MAX_TORQUE = 2.5
+      ret.lateralTuning.torque.kp = 3.5 / MAX_TORQUE
+      ret.lateralTuning.torque.kf = 0.75 / MAX_TORQUE
       ret.lateralTuning.torque.friction = 0.06
+    elif lateral_control == 'INDI':
+      ret.lateralTuning.init('indi')
+      ret.lateralTuning.indi.innerLoopGainBP = [0.]
+      ret.lateralTuning.indi.innerLoopGainV = [3.3]
+      ret.lateralTuning.indi.outerLoopGainBP = [0.]
+      ret.lateralTuning.indi.outerLoopGainV = [2.8]
+      ret.lateralTuning.indi.timeConstantBP = [0.]
+      ret.lateralTuning.indi.timeConstantV = [1.4]
+      ret.lateralTuning.indi.actuatorEffectivenessBP = [0.]
+      ret.lateralTuning.indi.actuatorEffectivenessV = [1.8]
     else:
       ret.lateralTuning.init('lqr')
 

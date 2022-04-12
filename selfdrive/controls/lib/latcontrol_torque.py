@@ -4,6 +4,7 @@ from selfdrive.controls.lib.latcontrol_pid import ERROR_RATE_FRAME
 from selfdrive.controls.lib.pid import PIDController
 from selfdrive.controls.lib.latcontrol import LatControl, MIN_STEER_SPEED
 from cereal import log
+from selfdrive.ntune import nTune
 
 CURVATURE_SCALE = 200
 JERK_THRESHOLD = 0.2
@@ -22,12 +23,14 @@ class LatControlTorque(LatControl):
     self.use_steering_angle = CP.lateralTuning.torque.useSteeringAngle
     self.friction = CP.lateralTuning.torque.friction
     self.errors = []
+    self.tune = nTune(CP, self)
 
   def reset(self):
     super().reset()
     self.pid.reset()
 
   def update(self, active, CS, CP, VM, params, last_actuators, desired_curvature, desired_curvature_rate, llk):
+    self.tune.check()
     pid_log = log.ControlsState.LateralTorqueState.new_message()
 
     if CS.vEgo < MIN_STEER_SPEED or not active:

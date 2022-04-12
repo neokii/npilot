@@ -2,12 +2,17 @@ import os
 import fcntl
 import signal
 import json
+import weakref
+from enum import Enum
+
 import numpy as np
 
 from selfdrive.hardware import TICI
 
 CONF_PATH = '/data/ntune/'
-CONF_LQR_FILE = '/data/ntune/lat_lqr.json'
+CONF_LAT_LQR_FILE = '/data/ntune/lat_lqr.json'
+CONF_LAT_INDI_FILE = '/data/ntune/lat_indi.json'
+CONF_LAT_TORQUE_FILE = '/data/ntune/lat_torque.json'
 
 ntunes = {}
 
@@ -16,23 +21,40 @@ def file_watch_handler(signum, frame):
   for ntune in ntunes.values():
     ntune.handle()
 
+class LatType(Enum):
+  NONE = 0
+  LQR = 1
+  INDI = 2
+  TORQUE = 3
+
 class nTune():
-  def __init__(self, CP=None, controller=None, group=None):
+
+  def get_ctrl(self):
+    return self.ctrl() if self.ctrl is not None else None
+
+  def __init__(self, CP=None, ctrl=None, group=None):
 
     self.invalidated = False
     self.CP = CP
-    self.lqr = None
+    self.ctrl = weakref.ref(ctrl) if ctrl is not None else None
+    self.type = LatType.NONE
     self.group = group
     self.config = {}
 
-    if "LatControlLQR" in str(type(controller)):
-      self.lqr = controller
-      self.file = CONF_LQR_FILE
-      self.lqr.A = np.array([0., 1., -0.22619643, 1.21822268]).reshape((2, 2))
-      self.lqr.B = np.array([-1.92006585e-04, 3.95603032e-05]).reshape((2, 1))
-      self.lqr.C = np.array([1., 0.]).reshape((1, 2))
-      self.lqr.K = np.array([-110., 451.]).reshape((1, 2))
-      self.lqr.L = np.array([0.33, 0.318]).reshape((2, 1))
+    if "LatControlLQR" in str(type(ctrl)):
+      self.type = LatType.LQR
+      self.file = CONF_LAT_LQR_FILE
+      ctrl.A = np.array([0., 1., -0.22619643, 1.21822268]).reshape((2, 2))
+      ctrl.B = np.array([-1.92006585e-04, 3.95603032e-05]).reshape((2, 1))
+      ctrl.C = np.array([1., 0.]).reshape((1, 2))
+      ctrl.K = np.array([-110., 451.]).reshape((1, 2))
+      ctrl.L = np.array([0.33, 0.318]).reshape((2, 1))
+    elif "LatControlTorque" in str(type(ctrl)):
+      self.type = LatType.TORQUE
+      self.file = CONF_LAT_TORQUE_FILE
+    elif "LatControlINDI" in str(type(ctrl)):
+      self.type = LatType.INDI
+      self.file = CONF_LAT_INDI_FILE
     else:
       self.file = CONF_PATH + group + ".json"
 
@@ -111,8 +133,12 @@ class nTune():
 
   def checkValid(self):
 
-    if self.lqr is not None:
+    if self.type == LatType.LQR:
       return self.checkValidLQR()
+    elif self.type == LatType.INDI:
+      return self.checkValidIndi()
+    elif self.type == LatType.TORQUE:
+      return self.checkValidTorque()
     elif self.group == "common":
       return self.checkValidCommon()
     else:
@@ -120,8 +146,12 @@ class nTune():
 
   def update(self):
 
-    if self.lqr is not None:
+    if self.type == LatType.LQR:
       self.updateLQR()
+    elif self.type == LatType.INDI:
+      self.updateTorque()
+    elif self.type == LatType.TORQUE:
+      self.updateTorque()
 
   def checkValidCommon(self):
     updated = False
@@ -163,6 +193,36 @@ class nTune():
 
     return updated
 
+  def checkValidIndi(self):
+    updated = False
+
+    if self.checkValue("actuatorEffectiveness", 0.5, 3.0, 1.8):
+      updated = True
+    if self.checkValue("timeConstant", 0.5, 3.0, 1.4):
+      updated = True
+    if self.checkValue("innerLoopGain", 1.0, 5.0, 3.3):
+      updated = True
+    if self.checkValue("outerLoopGain", 1.0, 5.0, 2.8):
+      updated = True
+
+    return updated
+
+  def checkValidTorque(self):
+    updated = False
+
+    if self.checkValue("useSteeringAngle", 0., 1., 1.):
+      updated = True
+    if self.checkValue("max_torque", 1.5, 4.0, 2.5):
+      updated = True
+    if self.checkValue("friction", 0.01, 1.5, 0.06):
+      updated = True
+    if self.checkValue("ki", 0.0, 0.5, 0.0):
+      updated = True
+    if self.checkValue("kd", 0.0, 1.5, 0.0):
+      updated = True
+
+    return updated
+
   def checkValidISCC(self):
     updated = False
 
@@ -178,24 +238,49 @@ class nTune():
     return updated
 
   def updateLQR(self):
+    lqr = self.get_ctrl()
+    if lqr is not None:
+      lqr.scale = float(self.config["scale"])
+      lqr.ki = float(self.config["ki"])
+      lqr.dc_gain = float(self.config["dcGain"])
+      lqr.C = np.array([float(self.config["c_0"]), 0.]).reshape((1, 2))
 
-    self.lqr.scale = float(self.config["scale"])
-    self.lqr.ki = float(self.config["ki"])
-    self.lqr.dc_gain = float(self.config["dcGain"])
-    self.lqr.C = np.array([float(self.config["c_0"]), 0.]).reshape((1, 2))
+      lqr.x_hat = np.array([[0], [0]])
+      lqr.reset()
 
-    self.lqr.x_hat = np.array([[0], [0]])
-    self.lqr.reset()
+  def updateIndi(self):
+    indi = self.get_ctrl()
+    if indi is not None:
+      indi._RC = ([0.], [float(self.config["timeConstantBP"])])
+      indi._G = ([0.], [float(self.config["actuatorEffectivenessBP"])])
+      indi._outer_loop_gain = ([0.], [float(self.config["outerLoopGainBP"])])
+      indi._inner_loop_gain = ([0.], [float(self.config["innerLoopGainBP"])])
+      indi.reset()
+
+  def updateTorque(self):
+    torque = self.get_ctrl()
+    if torque is not None:
+      max_torque = float(self.config["max_torque"])
+      torque.pid._k_p = [[0], [3.5 / max_torque]]
+      torque.pid.k_f = 0.75 / max_torque
+      torque.friction = float(self.config["friction"])
+      torque.pid._k_i = [[0], [float(self.config["ki"])]]
+      torque.pid._k_d = [[0], [float(self.config["kd"])]]
+      torque.reset()
 
   def read_cp(self):
 
     try:
       if self.CP is not None:
 
-        if self.CP.lateralTuning.which() == 'lqr' and self.lqr is not None:
+        if self.type == LatType.LQR:
           self.config["scale"] = round(self.CP.lateralTuning.lqr.scale, 2)
           self.config["ki"] = round(self.CP.lateralTuning.lqr.ki, 3)
           self.config["dcGain"] = round(self.CP.lateralTuning.lqr.dcGain, 6)
+        elif self.type == LatType.INDI:
+          pass
+        elif self.type == LatType.TORQUE:
+          pass
         else:
           self.config["useLiveSteerRatio"] = 1.
           self.config["steerRatio"] = round(self.CP.steerRatio, 2)
