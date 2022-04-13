@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from typing import List
 
 from cereal import car
 from common.numpy_fast import interp
@@ -49,10 +50,8 @@ class CarInterface(CarInterfaceBase):
     if lateral_control == 'TORQUE':
       ret.lateralTuning.init('torque')
       ret.lateralTuning.torque.useSteeringAngle = True
-
-      MAX_TORQUE = 2.5
-      ret.lateralTuning.torque.kp = 3.5 / MAX_TORQUE
-      ret.lateralTuning.torque.kf = 0.75 / MAX_TORQUE
+      ret.lateralTuning.torque.kp = 1.4
+      ret.lateralTuning.torque.kf = 0.08
       ret.lateralTuning.torque.friction = 0.06
     elif lateral_control == 'INDI':
       ret.lateralTuning.init('indi')
@@ -331,13 +330,17 @@ class CarInterface(CarInterfaceBase):
       ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.hyundaiCommunity, 0)]
     return ret
 
-  def update(self, c, can_strings):
+  def _update(self, c: car.CarControl) -> car.CarState:
+    pass
+
+  def update(self, c: car.CarControl, can_strings: List[bytes]) -> car.CarState:
     self.cp.update_strings(can_strings)
     self.cp2.update_strings(can_strings)
     self.cp_cam.update_strings(can_strings)
 
     ret = self.CS.update(self.cp, self.cp2, self.cp_cam)
     ret.canValid = self.cp.can_valid and self.cp2.can_valid and self.cp_cam.can_valid
+    ret.canTimeout = any(cp.bus_timeout for cp in self.can_parsers if cp is not None)
 
     if self.CP.pcmCruise and not self.CC.scc_live:
       self.CP.pcmCruise = False
