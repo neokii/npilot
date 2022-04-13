@@ -4,10 +4,7 @@ import signal
 import json
 import weakref
 from enum import Enum
-
 import numpy as np
-
-from selfdrive.hardware import TICI
 
 CONF_PATH = '/data/ntune/'
 CONF_LAT_LQR_FILE = '/data/ntune/lat_lqr.json'
@@ -100,7 +97,8 @@ class nTune():
 
         if self.checkValid():
           self.write_config(self.config)
-          self.update()
+
+        self.update()
         success = True
     except:
       pass
@@ -149,7 +147,7 @@ class nTune():
     if self.type == LatType.LQR:
       self.updateLQR()
     elif self.type == LatType.INDI:
-      self.updateTorque()
+      self.updateIndi()
     elif self.type == LatType.TORQUE:
       self.updateTorque()
 
