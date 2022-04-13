@@ -5,6 +5,7 @@ import json
 import weakref
 from enum import Enum
 import numpy as np
+import threading
 
 CONF_PATH = '/data/ntune/'
 CONF_LAT_LQR_FILE = '/data/ntune/lat_lqr.json'
@@ -13,10 +14,12 @@ CONF_LAT_TORQUE_FILE = '/data/ntune/lat_torque.json'
 
 ntunes = {}
 
+
 def file_watch_handler(signum, frame):
   global ntunes
   for ntune in ntunes.values():
     ntune.handle()
+
 
 class LatType(Enum):
   NONE = 0
@@ -24,10 +27,16 @@ class LatType(Enum):
   INDI = 2
   TORQUE = 3
 
+
 class nTune():
 
   def get_ctrl(self):
     return self.ctrl() if self.ctrl is not None else None
+
+  def __del__(self):
+    if self.group is None:
+      ntunes[self.key] = None
+    print('__del__', self)
 
   def __init__(self, CP=None, ctrl=None, group=None):
 
@@ -37,6 +46,7 @@ class nTune():
     self.type = LatType.NONE
     self.group = group
     self.config = {}
+    self.key = str(self)
 
     if "LatControlLQR" in str(type(ctrl)):
       self.type = LatType.LQR
@@ -59,6 +69,9 @@ class nTune():
       os.makedirs(CONF_PATH)
 
     self.read()
+
+    if self.group is None:
+      ntunes[self.key] = self
 
     try:
       signal.signal(signal.SIGIO, file_watch_handler)
@@ -249,10 +262,11 @@ class nTune():
   def updateIndi(self):
     indi = self.get_ctrl()
     if indi is not None:
-      indi._RC = ([0.], [float(self.config["timeConstantBP"])])
-      indi._G = ([0.], [float(self.config["actuatorEffectivenessBP"])])
-      indi._outer_loop_gain = ([0.], [float(self.config["outerLoopGainBP"])])
-      indi._inner_loop_gain = ([0.], [float(self.config["innerLoopGainBP"])])
+      indi._RC = ([0.], [float(self.config["timeConstant"])])
+      indi._G = ([0.], [float(self.config["actuatorEffectiveness"])])
+      indi._outer_loop_gain = ([0.], [float(self.config["outerLoopGain"])])
+      indi._inner_loop_gain = ([0.], [float(self.config["innerLoopGain"])])
+      indi.steer_filter.update_alpha(indi.RC)
       indi.reset()
 
   def updateTorque(self):
@@ -314,6 +328,7 @@ class nTune():
       except:
         pass
 
+
 def ntune_get(group, key):
   global ntunes
   if group not in ntunes:
@@ -332,11 +347,14 @@ def ntune_get(group, key):
 
   return v
 
+
 def ntune_common_get(key):
   return ntune_get("common", key)
 
+
 def ntune_common_enabled(key):
   return ntune_common_get(key) > 0.5
+
 
 def ntune_scc_get(key):
   return ntune_get("scc", key)
