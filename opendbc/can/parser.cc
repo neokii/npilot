@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
+#include <limits>
 
 #include <unistd.h>
 #include <fcntl.h>
