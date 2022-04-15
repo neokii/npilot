@@ -196,9 +196,6 @@ class nTune():
     if self.checkValue("dcGain", 0.002, 0.004, 0.0027):
       updated = True
 
-    if self.checkValue("c_0", 0.3, 1.1, 1.0):
-      updated = True
-
     if self.checkValue("steerLimitTimer", 0.5, 3.0, 2.5):
       updated = True
 
@@ -256,7 +253,6 @@ class nTune():
       lqr.scale = float(self.config["scale"])
       lqr.ki = float(self.config["ki"])
       lqr.dc_gain = float(self.config["dcGain"])
-      lqr.C = np.array([float(self.config["c_0"]), 0.]).reshape((1, 2))
 
       lqr.x_hat = np.array([[0], [0]])
       lqr.reset()
