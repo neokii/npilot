@@ -88,16 +88,16 @@ class CarInterface(CarInterfaceBase):
     ret.steerLimitTimer = 2.5
 
     # longitudinal
-    ret.longitudinalTuning.kpBP = [0., 5.*CV.KPH_TO_MS, 10.*CV.KPH_TO_MS, 20.*CV.KPH_TO_MS, 130.*CV.KPH_TO_MS]
+    ret.longitudinalTuning.kpBP = [0., 5.*CV.KPH_TO_MS, 10.*CV.KPH_TO_MS, 30.*CV.KPH_TO_MS, 130.*CV.KPH_TO_MS]
     ret.longitudinalTuning.kpV = [1.25, 1.1, 1.0, 0.85, 0.48]
     ret.longitudinalTuning.kiBP = [0., 130. * CV.KPH_TO_MS]
     ret.longitudinalTuning.kiV = [0.08, 0.03]
-    ret.longitudinalActuatorDelayLowerBound = 0.5
-    ret.longitudinalActuatorDelayUpperBound = 0.5
+    ret.longitudinalActuatorDelayLowerBound = 0.3
+    ret.longitudinalActuatorDelayUpperBound = 0.3
 
     ret.stopAccel = -2.0
-    ret.stoppingDecelRate = 0.5  # brake_travel/s while trying to stop
-    ret.vEgoStopping = 0.5
+    ret.stoppingDecelRate = 0.6  # brake_travel/s while trying to stop
+    ret.vEgoStopping = 0.6
     ret.vEgoStarting = 0.5
 
     # genesis
