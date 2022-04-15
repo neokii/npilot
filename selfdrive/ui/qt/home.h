@@ -50,7 +50,8 @@ public slots:
   void showSidebar(bool show);
 
 protected:
-void mouseReleaseEvent(QMouseEvent* e) override;
+  void mouseReleaseEvent(QMouseEvent* e) override;
+  void mouseDoubleClickEvent(QMouseEvent* e) override;
 
 private:
   Sidebar *sidebar;
