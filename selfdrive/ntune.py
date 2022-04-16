@@ -259,7 +259,6 @@ class nTune():
   def updateIndi(self):
     indi = self.get_ctrl()
     if indi is not None:
-      indi.use_steering_angle = float(self.config["useSteeringAngle"]) > 0.5
       indi._RC = ([0.], [float(self.config["timeConstant"])])
       indi._G = ([0.], [float(self.config["actuatorEffectiveness"])])
       indi._outer_loop_gain = ([0.], [float(self.config["outerLoopGain"])])
@@ -270,6 +269,7 @@ class nTune():
   def updateTorque(self):
     torque = self.get_ctrl()
     if torque is not None:
+      torque.use_steering_angle = float(self.config["useSteeringAngle"]) > 0.5
       torque.pid._k_p = [[0], [float(self.config["kp"])]]
       torque.pid._k_i = [[0], [float(self.config["ki"])]]
       torque.pid._k_d = [[0], [float(self.config["kd"])]]
