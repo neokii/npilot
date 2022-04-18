@@ -61,6 +61,7 @@ class LatControlTorque(LatControl):
 
       ff = desired_lateral_accel - params.roll * 9.81
       output_torque = self.pid.update(error,
+                                      error_rate=error_rate,
                                       override=CS.steeringPressed, feedforward=ff,
                                       speed=CS.vEgo)
 
