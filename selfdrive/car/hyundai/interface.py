@@ -282,10 +282,6 @@ class CarInterface(CarInterfaceBase):
 
       ret.steerRatio = 14.5
 
-      ret.lateralTuning.lqr.scale = 1650.
-      ret.lateralTuning.lqr.ki = 0.01
-      ret.lateralTuning.lqr.dcGain = 0.0026
-
 
 
     ret.radarTimeStep = 0.05
