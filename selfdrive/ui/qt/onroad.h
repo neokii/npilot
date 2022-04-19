@@ -78,6 +78,7 @@ protected:
   void drawSpeed(QPainter &p);
   void drawBottomIcons(QPainter &p);
   void drawSpeedLimit(QPainter &p);
+  void drawSteer(QPainter &p);
   void drawRestArea(QPainter &p);
   void drawTurnSignals(QPainter &p);
   void drawGpsStatus(QPainter &p);
