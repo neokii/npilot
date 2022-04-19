@@ -50,14 +50,13 @@ class LatControlHybrid(LatControl):
     lat_log = log.ControlsState.LateralHybridState.new_message()
     lat_log.steeringAngleDeg = float(CS.steeringAngleDeg)
 
+    angle_steers_des_no_offset = math.degrees(VM.get_steer_from_curvature(-desired_curvature, CS.vEgo, params.roll))
+
     #torque_scale = (0.45 + CS.vEgo / 60.0)**2  # Scale actuator model with speed
     torque_scale = interp(CS.vEgo * 3.6, TORQUE_SCALE_BP, TORQUE_SCALE_V)
 
-    # Subtract offset. Zero angle should correspond to zero torque
     steering_angle_no_offset = CS.steeringAngleDeg - params.angleOffsetAverageDeg
-
-    desired_angle = math.degrees(VM.get_steer_from_curvature(-desired_curvature, CS.vEgo, params.roll))
-
+    desired_angle = angle_steers_des_no_offset
     instant_offset = params.angleOffsetDeg - params.angleOffsetAverageDeg
     desired_angle += instant_offset  # Only add offset that originates from vehicle model errors
 
@@ -95,7 +94,6 @@ class LatControlHybrid(LatControl):
       output_steer_lqr = clip(output_steer_lqr, -self.steer_max, self.steer_max)
 
       # PID
-      angle_steers_des_no_offset = math.degrees(VM.get_steer_from_curvature(-desired_curvature, CS.vEgo, params.roll))
       angle_steers_des = angle_steers_des_no_offset + params.angleOffsetDeg
       error = angle_steers_des - CS.steeringAngleDeg
 
@@ -117,7 +115,7 @@ class LatControlHybrid(LatControl):
                                          override=CS.steeringPressed,
                                          feedforward=steer_feedforward, speed=CS.vEgo)
 
-      lqr_weight = interp(abs((angle_steers_des+CS.steeringAngleDeg)/2.), [10., 25.], [1., 0.])
+      lqr_weight = interp(abs((angle_steers_des + CS.steeringAngleDeg) / 2.), [10., 25.], [1., 0.])
       output_steer = output_steer_lqr * lqr_weight + output_steer_pid * (1. - lqr_weight)
 
     lat_log.output = output_steer
