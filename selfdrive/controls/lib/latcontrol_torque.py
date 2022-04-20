@@ -15,7 +15,6 @@ class LatControlTorque(LatControl):
   def __init__(self, CP, CI):
     super().__init__(CP, CI)
     self.pid = PIDController(CP.lateralTuning.torque.kp, CP.lateralTuning.torque.ki,
-                            k_d=CP.lateralTuning.torque.kd,
                             k_f=CP.lateralTuning.torque.kf, pos_limit=1.0, neg_limit=-1.0)
     self.get_steer_feedforward = CI.get_steer_feedforward_function()
     self.steer_max = 1.0
@@ -23,7 +22,6 @@ class LatControlTorque(LatControl):
     self.pid.neg_limit = -self.steer_max
     self.use_steering_angle = CP.lateralTuning.torque.useSteeringAngle
     self.friction = CP.lateralTuning.torque.friction
-    self.errors = []
     self.tune = nTune(CP, self)
 
   def reset(self):
@@ -52,17 +50,8 @@ class LatControlTorque(LatControl):
       error = setpoint - measurement
       pid_log.error = error
 
-      error_rate = 0
-      if len(self.errors) >= ERROR_RATE_FRAME:
-        error_rate = (error - self.errors[-ERROR_RATE_FRAME]) / ERROR_RATE_FRAME
-
-      self.errors.append(float(error))
-      while len(self.errors) > ERROR_RATE_FRAME:
-        self.errors.pop(0)
-
       ff = desired_lateral_accel - params.roll * ACCELERATION_DUE_TO_GRAVITY
       output_torque = self.pid.update(error,
-                                      error_rate=error_rate,
                                       override=CS.steeringPressed, feedforward=ff,
                                       speed=CS.vEgo,
                                       freeze_integrator=CS.steeringRateLimited)

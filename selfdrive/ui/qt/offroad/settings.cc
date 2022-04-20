@@ -566,7 +566,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
 
   QString lateral_control = QString::fromStdString(Params().get("LateralControl"));
   if(lateral_control.length() == 0)
-    lateral_control = "LQR";
+    lateral_control = "TORQUE";
 
   QPushButton* lateralControlBtn = new QPushButton(lateral_control);
   lateralControlBtn->setObjectName("lateralControlBtn");
@@ -581,7 +581,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
 
      QString lateral_control = QString::fromStdString(Params().get("LateralControl"));
      if(lateral_control.length() == 0)
-       lateral_control = "LQR";
+       lateral_control = "TORQUE";
      lateralControlBtn->setText(lateral_control);
      main_layout->setCurrentWidget(homeScreen);
   });
@@ -783,7 +783,7 @@ LateralControl::LateralControl(QWidget* parent): QWidget(parent) {
   QScroller::grabGesture(list->viewport(), QScroller::LeftMouseButtonGesture);
   list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
-  QStringList items = {"LQR", "INDI", "TORQUE", "HYBRID"};
+  QStringList items = {"TORQUE", "LQR", "INDI", "HYBRID"};
   list->addItems(items);
   list->setCurrentRow(0);
 

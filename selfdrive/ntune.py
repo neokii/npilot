@@ -9,7 +9,7 @@ import numpy as np
 CONF_PATH = '/data/ntune/'
 CONF_LAT_LQR_FILE = '/data/ntune/lat_lqr.json'
 CONF_LAT_INDI_FILE = '/data/ntune/lat_indi.json'
-CONF_LAT_TORQUE_FILE = '/data/ntune/lat_torque_v2.json'
+CONF_LAT_TORQUE_FILE = '/data/ntune/lat_torque_v3.json'
 
 ntunes = {}
 
@@ -192,7 +192,7 @@ class nTune():
     if self.checkValue("ki", 0.0, 0.2, 0.01):
       updated = True
 
-    if self.checkValue("dcGain", 0.002, 0.004, 0.0026):
+    if self.checkValue("dcGain", 0.002, 0.004, 0.0025):
       updated = True
 
     if self.checkValue("steerLimitTimer", 0.5, 3.0, 2.5):
@@ -219,11 +219,9 @@ class nTune():
 
     if self.checkValue("useSteeringAngle", 0., 1., 1.):
       updated = True
-    if self.checkValue("maxTorque", 1.0, 4.0, 2.5):
+    if self.checkValue("maxLatAccel", 1.0, 4.0, 2.5):
       updated = True
-    if self.checkValue("friction", 0.0, 0.1, 0.02):
-      updated = True
-    if self.checkValue("kd", 0.0, 1.5, 0.0):
+    if self.checkValue("friction", 0.0, 0.1, 0.06):
       updated = True
 
     return updated
@@ -266,11 +264,10 @@ class nTune():
     torque = self.get_ctrl()
     if torque is not None:
       torque.use_steering_angle = float(self.config["useSteeringAngle"]) > 0.5
-      max_torque = float(self.config["maxTorque"])
-      torque.pid._k_p = [[0], [2.0 / max_torque]]
-      torque.pid.k_f = 1.0 / max_torque
-      torque.pid._k_i = [[0], [0.5 / max_torque]]
-      torque.pid._k_d = [[0], [float(self.config["kd"])]]
+      max_lat_accel = float(self.config["maxLatAccel"])
+      torque.pid._k_p = [[0], [2.0 / max_lat_accel]]
+      torque.pid.k_f = 1.0 / max_lat_accel
+      torque.pid._k_i = [[0], [0.5 / max_lat_accel]]
       torque.friction = float(self.config["friction"])
       torque.reset()
 

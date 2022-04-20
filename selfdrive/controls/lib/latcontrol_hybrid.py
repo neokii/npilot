@@ -17,7 +17,7 @@ class LatControlHybrid(LatControl):
     super().__init__(CP, CI)
     self.scale = 1600.
     self.ki = 0.01
-    self.dc_gain = 0.0027
+    self.dc_gain = 0.0025
 
     self.A = np.array([0., 1., -0.22619643, 1.21822268]).reshape((2, 2))
     self.B = np.array([-1.92006585e-04, 3.95603032e-05]).reshape((2, 1))
@@ -115,7 +115,7 @@ class LatControlHybrid(LatControl):
                                          override=CS.steeringPressed,
                                          feedforward=steer_feedforward, speed=CS.vEgo)
 
-      lqr_weight = interp(abs((angle_steers_des + CS.steeringAngleDeg) / 2.), [10., 25.], [1., 0.])
+      lqr_weight = interp(abs((angle_steers_des + CS.steeringAngleDeg) / 2.), [8., 25.], [1., 0.])
       output_steer = output_steer_lqr * lqr_weight + output_steer_pid * (1. - lqr_weight)
 
     lat_log.output = output_steer
