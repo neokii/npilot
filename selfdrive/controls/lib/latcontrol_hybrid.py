@@ -30,7 +30,7 @@ class LatControlHybrid(LatControl):
     self.i_rate = 1.0 * DT_CTRL
 
     self.pid = PIDController(k_p=0.2,
-                             k_i=0.03,
+                             k_i=0.02,
                              k_f=0.00005,
                              k_d=0.1,
                              pos_limit=1.0, neg_limit=-1.0)
