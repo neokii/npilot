@@ -732,6 +732,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, AlertCallbackType]]] = {
 
   EventName.controlsMismatch: {
     ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Controls Mismatch"),
+    ET.NO_ENTRY: NoEntryAlert("Controls Mismatch"),
   },
 
   EventName.roadCameraError: {

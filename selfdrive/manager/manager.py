@@ -14,7 +14,7 @@ from common.basedir import BASEDIR
 from common.params import Params, ParamKeyType
 from common.text_window import TextWindow
 from selfdrive.boardd.set_time import set_time
-from selfdrive.hardware import HARDWARE, PC, EON
+from selfdrive.hardware import HARDWARE, PC
 from selfdrive.manager.helpers import unblock_stdout
 from selfdrive.manager.process import ensure_running, launcher
 from selfdrive.manager.process_config import managed_processes
@@ -22,7 +22,6 @@ from selfdrive.athena.registration import register, UNREGISTERED_DONGLE_ID
 from selfdrive.swaglog import cloudlog, add_file_handler
 from selfdrive.version import is_dirty, get_commit, get_version, get_origin, get_short_branch, \
                               terms_version, training_version
-from selfdrive.hardware.eon.apk import system
 
 sys.path.append(os.path.join(BASEDIR, "pyextra"))
 
@@ -136,10 +135,6 @@ def manager_cleanup() -> None:
 
 def manager_thread() -> None:
 
-  if EON:
-    Process(name="autoshutdownd", target=launcher, args=("selfdrive.autoshutdownd", "autoshutdownd")).start()
-    system("am startservice com.neokii.optool/.MainService")
-
   Process(name="road_speed_limiter", target=launcher, args=("selfdrive.road_speed_limiter", "road_speed_limiter")).start()
   cloudlog.bind(daemon="manager")
   cloudlog.info("manager start")
@@ -157,16 +152,15 @@ def manager_thread() -> None:
   ensure_running(managed_processes.values(), started=False, not_run=ignore)
 
   started_prev = False
-  sm = messaging.SubMaster(['deviceState'])
+  sm = messaging.SubMaster(['deviceState', 'carParams'], poll=['deviceState'])
   pm = messaging.PubMaster(['managerState'])
 
   while True:
     sm.update()
-    not_run = ignore[:]
 
     started = sm['deviceState'].started
     driverview = params.get_bool("IsDriverViewEnabled")
-    ensure_running(managed_processes.values(), started, driverview, not_run)
+    ensure_running(managed_processes.values(), started=started, driverview=driverview, notcar=sm['carParams'].notCar, not_run=ignore)
 
     # trigger an update after going offroad
     if started_prev and not started and 'updated' in managed_processes:
