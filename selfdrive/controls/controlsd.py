@@ -11,7 +11,6 @@ from common.params import Params, put_nonblocking
 import cereal.messaging as messaging
 from common.conversions import Conversions as CV
 from panda import ALTERNATIVE_EXPERIENCE
-from selfdrive.controls.lib.latcontrol_hybrid import LatControlHybrid
 from selfdrive.controls.lib.latcontrol_torque import LatControlTorque
 from selfdrive.swaglog import cloudlog
 from selfdrive.boardd.boardd import can_list_to_can_capnp
@@ -153,8 +152,6 @@ class Controls:
       self.LaC = LatControlLQR(self.CP, self.CI)
     elif self.CP.lateralTuning.which() == 'torque':
       self.LaC = LatControlTorque(self.CP, self.CI)
-    elif self.CP.lateralTuning.which() == 'hybrid':
-      self.LaC = LatControlHybrid(self.CP, self.CI)
 
 
 
