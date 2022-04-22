@@ -219,7 +219,14 @@ void UIState::updateStatus() {
       status = STATUS_OVERRIDE;
     } else {
       status = controls_state.getEnabled() ? STATUS_ENGAGED : STATUS_DISENGAGED;
+      scene.engaged = controls_state.getEnabled();
     }
+  }
+
+  if (sm->updated("carState")) {
+    auto ce = (*sm)["carState"].getCarState();
+    scene.steeringPressed = ce.getSteeringPressed();
+    scene.override = ce.getGasPressed();
   }
 
   // Handle onroad/offroad transition

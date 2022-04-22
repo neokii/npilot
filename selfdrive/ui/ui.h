@@ -96,6 +96,9 @@ typedef struct UIScene {
   mat3 view_from_calib;
   cereal::PandaState::PandaType pandaType;
 
+  // ui add
+  bool steeringPressed, engaged, override;
+
   // modelV2
   float lane_line_probs[4];
   float road_edge_stds[2];

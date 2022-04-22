@@ -128,6 +128,7 @@ void OnroadWindow::mouseReleaseEvent(QMouseEvent* e) {
     bool sidebarVisible = geometry().x() > 0;
     map->setVisible(!sidebarVisible && !map->isVisible());
   }
+
   // propagation event to parent(HomeWindow)
   QWidget::mouseReleaseEvent(e);
 }
@@ -164,6 +165,7 @@ void OnroadWindow::offroadTransition(bool offroad) {
   if(offroad && recorder) {
     recorder->stop(false);
   }
+
 }
 
 void OnroadWindow::paintEvent(QPaintEvent *event) {
@@ -297,7 +299,7 @@ void NvgWindow::drawLaneLines(QPainter &painter, const UIState *s) {
 
   // paint path
   QLinearGradient bg(0, height(), 0, height() / 4);
-  if (scene.end_to_end) {
+  if (scene.engaged) {
     const auto &orientation = (*s->sm)["modelV2"].getModelV2().getOrientation();
     float orientation_future = 0;
     if (orientation.getZ().size() > 16) {
@@ -308,9 +310,18 @@ void NvgWindow::drawLaneLines(QPainter &painter, const UIState *s) {
     // FIXME: painter.drawPolygon can be slow if hue is not rounded
     curve_hue = int(curve_hue * 100 + 0.5) / 100;
 
-    bg.setColorAt(0.0, QColor::fromHslF(148 / 360., 0.94, 0.51, 0.4));
-    bg.setColorAt(0.75 / 1.5, QColor::fromHslF(curve_hue / 360., 1.0, 0.68, 0.35));
-    bg.setColorAt(1.0, QColor::fromHslF(curve_hue / 360., 1.0, 0.68, 0.0));
+    if (scene.steeringPressed) {
+      // The user is applying torque to the steering wheel
+      bg.setColorAt(0, steeringpressedColor(200));
+      bg.setColorAt(1, QColor(0, 95, 128, 50));
+    } else if (scene.override) {
+      bg.setColorAt(0, overrideColor(200));
+      bg.setColorAt(1, QColor(72, 77, 74, 50));
+    } else {
+      bg.setColorAt(0.0, QColor::fromHslF(148 / 360., 0.94, 0.51, 0.4));
+      bg.setColorAt(0.75 / 1.5, QColor::fromHslF(curve_hue / 360., 1.0, 0.68, 0.35));
+      bg.setColorAt(1.0, QColor::fromHslF(curve_hue / 360., 1.0, 0.68, 0.0));
+    }
   } else {
     bg.setColorAt(0, whiteColor(200));
     bg.setColorAt(1, whiteColor(0));
