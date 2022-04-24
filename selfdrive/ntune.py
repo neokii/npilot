@@ -285,7 +285,10 @@ class nTune():
         elif self.type == LatType.INDI:
           pass
         elif self.type == LatType.TORQUE:
-          pass
+          self.config["useSteeringAngle"] = 1. if self.CP.lateralTuning.torque.useSteeringAngle else 0.
+          self.config["maxLatAccel"] = round(2. / self.CP.lateralTuning.torque.kp, 2)
+          self.config["friction"] = round(self.CP.lateralTuning.torque.friction, 3)
+          self.config["ki_factor"] = round(self.CP.lateralTuning.torque.ki * self.config["maxLatAccel"], 2)
         else:
           self.config["useLiveSteerRatio"] = 1.
           self.config["steerRatio"] = round(self.CP.steerRatio, 2)
