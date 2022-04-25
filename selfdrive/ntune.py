@@ -46,6 +46,7 @@ class nTune():
     self.group = group
     self.config = {}
     self.key = str(self)
+    self.disable_lateral_live_tuning = CP.disableLateralLiveTuning if CP is not None else False
 
     if "LatControlLQR" in str(type(ctrl)):
       self.type = LatType.LQR
@@ -155,6 +156,9 @@ class nTune():
       return self.checkValidISCC()
 
   def update(self):
+
+    if self.disable_lateral_live_tuning:
+      return
 
     if self.type == LatType.LQR:
       self.updateLQR()
