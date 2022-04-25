@@ -45,6 +45,8 @@ class CarInterface(CarInterfaceBase):
     ret.steerFaultMaxAngle = 85
     ret.steerFaultMaxFrames = 90
 
+    ret.disableLateralLiveTuning = False
+
     # lateral
     lateral_control = Params().get("LateralControl", encoding='utf-8')
     if lateral_control == 'INDI':
