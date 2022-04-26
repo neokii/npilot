@@ -24,6 +24,8 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
   road_view_layout->setStackingMode(QStackedLayout::StackAll);
   nvg = new NvgWindow(VISION_STREAM_ROAD, this);
   road_view_layout->addWidget(nvg);
+  hud = new OnroadHud(this);
+  road_view_layout->addWidget(hud);
 
   QWidget * split_wrapper = new QWidget;
   split = new QHBoxLayout(split_wrapper);
@@ -65,6 +67,7 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
   recorder_widget->raise();
   alerts->raise();
 
+  last_update_hud = 0;
 }
 
 void OnroadWindow::updateState(const UIState &s) {
@@ -77,6 +80,12 @@ void OnroadWindow::updateState(const UIState &s) {
       bgColor = bg_colors[STATUS_DISENGAGED];
     }
     alerts->updateAlert(alert, bgColor);
+  }
+
+  auto now = millis_since_boot();
+  if(now - last_update_hud >= (1000/UI_FREQ)*2) {
+    last_update_hud = now;
+    hud->update();
   }
 
   if (bg != bgColor) {
@@ -247,17 +256,6 @@ void NvgWindow::initializeGL() {
 
   prev_draw_t = millis_since_boot();
   setBackgroundColor(bg_colors[STATUS_DISENGAGED]);
-
-  // neokii
-  ic_brake = QPixmap("../assets/images/img_brake_disc.png").scaled(img_size, img_size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-  ic_autohold_warning = QPixmap("../assets/images/img_autohold_warning.png").scaled(img_size, img_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-  ic_autohold_active = QPixmap("../assets/images/img_autohold_active.png").scaled(img_size, img_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-  ic_nda = QPixmap("../assets/images/img_nda.png");
-  ic_hda = QPixmap("../assets/images/img_hda.png");
-  ic_tire_pressure = QPixmap("../assets/images/img_tire_pressure.png");
-  ic_turn_signal_l = QPixmap("../assets/images/turn_signal_l.png");
-  ic_turn_signal_r = QPixmap("../assets/images/turn_signal_r.png");
-  ic_satellite = QPixmap("../assets/images/satellite.png");
 }
 
 void NvgWindow::updateFrameMat(int w, int h) {
@@ -352,22 +350,26 @@ void NvgWindow::drawLead(QPainter &painter, const cereal::ModelDataV2::LeadDataV
 }
 
 void NvgWindow::paintGL() {
-}
-
-void NvgWindow::paintEvent(QPaintEvent *event) {
-  QPainter p;
-  p.begin(this);
-
-  p.beginNativePainting();
   CameraViewWidget::paintGL();
-  p.endNativePainting();
 
   UIState *s = uiState();
   if (s->worldObjectsVisible()) {
-    drawHud(p);
-  }
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(Qt::NoPen);
 
-  p.end();
+    drawLaneLines(painter, s);
+
+    if (s->scene.longitudinal_control) {
+      auto leads = (*s->sm)["modelV2"].getModelV2().getLeadsV3();
+      if (leads[0].getProb() > .5) {
+        drawLead(painter, leads[0], s->scene.lead_vertices[0], s->scene.lead_radar[0]);
+      }
+      if (leads[1].getProb() > .5 && (std::abs(leads[1].getX()[0] - leads[0].getX()[0]) > 3.0)) {
+        drawLead(painter, leads[1], s->scene.lead_vertices[1], s->scene.lead_radar[1]);
+      }
+    }
+  }
 
   double cur_draw_t = millis_since_boot();
   double dt = cur_draw_t - prev_draw_t;
@@ -390,7 +392,28 @@ void NvgWindow::showEvent(QShowEvent *event) {
   prev_draw_t = millis_since_boot();
 }
 
-void NvgWindow::drawText(QPainter &p, int x, int y, const QString &text, int alpha) {
+
+// OnroadHud
+
+OnroadHud::OnroadHud(QWidget *parent) : QWidget(parent) {
+  // neokii
+  ic_brake = QPixmap("../assets/images/img_brake_disc.png").scaled(img_size, img_size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+  ic_autohold_warning = QPixmap("../assets/images/img_autohold_warning.png").scaled(img_size, img_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  ic_autohold_active = QPixmap("../assets/images/img_autohold_active.png").scaled(img_size, img_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  ic_nda = QPixmap("../assets/images/img_nda.png");
+  ic_hda = QPixmap("../assets/images/img_hda.png");
+  ic_tire_pressure = QPixmap("../assets/images/img_tire_pressure.png");
+  ic_turn_signal_l = QPixmap("../assets/images/turn_signal_l.png");
+  ic_turn_signal_r = QPixmap("../assets/images/turn_signal_r.png");
+  ic_satellite = QPixmap("../assets/images/satellite.png");
+}
+
+void OnroadHud::paintEvent(QPaintEvent *event) {
+  QPainter p(this);
+  drawHud(p);
+}
+
+void OnroadHud::drawText(QPainter &p, int x, int y, const QString &text, int alpha) {
   QFontMetrics fm(p.font());
   QRect init_rect = fm.boundingRect(text);
   QRect real_rect = fm.boundingRect(init_rect, 0, text);
@@ -400,7 +423,7 @@ void NvgWindow::drawText(QPainter &p, int x, int y, const QString &text, int alp
   p.drawText(real_rect.x(), real_rect.bottom(), text);
 }
 
-void NvgWindow::drawTextWithColor(QPainter &p, int x, int y, const QString &text, QColor& color) {
+void OnroadHud::drawTextWithColor(QPainter &p, int x, int y, const QString &text, QColor& color) {
   QFontMetrics fm(p.font());
   QRect init_rect = fm.boundingRect(text);
   QRect real_rect = fm.boundingRect(init_rect, 0, text);
@@ -410,7 +433,7 @@ void NvgWindow::drawTextWithColor(QPainter &p, int x, int y, const QString &text
   p.drawText(real_rect.x(), real_rect.bottom(), text);
 }
 
-void NvgWindow::drawIcon(QPainter &p, int x, int y, QPixmap &img, QBrush bg, float opacity) {
+void OnroadHud::drawIcon(QPainter &p, int x, int y, QPixmap &img, QBrush bg, float opacity) {
   p.setPen(Qt::NoPen);
   p.setBrush(bg);
   p.drawEllipse(x - radius / 2, y - radius / 2, radius, radius);
@@ -418,7 +441,7 @@ void NvgWindow::drawIcon(QPainter &p, int x, int y, QPixmap &img, QBrush bg, flo
   p.drawPixmap(x - img_size / 2, y - img_size / 2, img_size, img_size, img);
 }
 
-void NvgWindow::drawText2(QPainter &p, int x, int y, int flags, const QString &text, const QColor& color) {
+void OnroadHud::drawText2(QPainter &p, int x, int y, int flags, const QString &text, const QColor& color) {
   QFontMetrics fm(p.font());
   QRect rect = fm.boundingRect(text);
   rect.adjust(-1, -1, 1, 1);
@@ -426,7 +449,7 @@ void NvgWindow::drawText2(QPainter &p, int x, int y, int flags, const QString &t
   p.drawText(QRect(x, y, rect.width()+1, rect.height()), flags, text);
 }
 
-void NvgWindow::drawHud(QPainter &p) {
+void OnroadHud::drawHud(QPainter &p) {
 
   p.setRenderHint(QPainter::Antialiasing);
   p.setPen(Qt::NoPen);
@@ -439,25 +462,14 @@ void NvgWindow::drawHud(QPainter &p) {
   p.fillRect(0, 0, width(), header_h, bg);
 
   UIState *s = uiState();
-
   const SubMaster &sm = *(s->sm);
-
-  drawLaneLines(p, s);
-
-  auto leads = sm["modelV2"].getModelV2().getLeadsV3();
-  if (leads[0].getProb() > .5) {
-    drawLead(p, leads[0], s->scene.lead_vertices[0], s->scene.lead_radar[0]);
-  }
-  if (leads[1].getProb() > .5 && (std::abs(leads[1].getX()[0] - leads[0].getX()[0]) > 3.0)) {
-    drawLead(p, leads[1], s->scene.lead_vertices[1], s->scene.lead_radar[1]);
-  }
 
   drawMaxSpeed(p);
   drawSpeed(p);
   drawSpeedLimit(p);
   drawSteer(p);
   drawRestArea(p);
-  drawTurnSignals(p);
+  //drawTurnSignals(p);
   drawGpsStatus(p);
 
   if(s->show_debug && width() > 1200)
@@ -519,7 +531,7 @@ static const QString get_tpms_text(float tpms) {
     return QString(str);
 }
 
-void NvgWindow::drawBottomIcons(QPainter &p) {
+void OnroadHud::drawBottomIcons(QPainter &p) {
   const SubMaster &sm = *(uiState()->sm);
   auto car_state = sm["carState"].getCarState();
   auto scc_smoother = sm["carControl"].getCarControl().getSccSmoother();
@@ -611,7 +623,7 @@ void NvgWindow::drawBottomIcons(QPainter &p) {
   p.setOpacity(1.);
 }
 
-void NvgWindow::drawMaxSpeed(QPainter &p) {
+void OnroadHud::drawMaxSpeed(QPainter &p) {
   UIState *s = uiState();
   const SubMaster &sm = *(s->sm);
   const auto scc_smoother = sm["carControl"].getCarControl().getSccSmoother();
@@ -661,7 +673,7 @@ void NvgWindow::drawMaxSpeed(QPainter &p) {
   }
 }
 
-void NvgWindow::drawSpeed(QPainter &p) {
+void OnroadHud::drawSpeed(QPainter &p) {
   UIState *s = uiState();
   const SubMaster &sm = *(s->sm);
   float cur_speed = std::max(0.0, sm["carState"].getCarState().getCluSpeedMs() * (s->scene.is_metric ? MS_TO_KPH : MS_TO_MPH));
@@ -692,7 +704,7 @@ void NvgWindow::drawSpeed(QPainter &p) {
   drawText(p, rect().center().x(), 310, s->scene.is_metric ? "km/h" : "mph", 200);
 }
 
-void NvgWindow::drawSpeedLimit(QPainter &p) {
+void OnroadHud::drawSpeedLimit(QPainter &p) {
   const SubMaster &sm = *(uiState()->sm);
   auto roadLimitSpeed = sm["roadLimitSpeed"].getRoadLimitSpeed();
 
@@ -795,7 +807,7 @@ void NvgWindow::drawSpeedLimit(QPainter &p) {
   }
 }
 
-void NvgWindow::drawSteer(QPainter &p) {
+void OnroadHud::drawSteer(QPainter &p) {
 
   int x = 30;
   int y = 540;
@@ -826,7 +838,7 @@ void NvgWindow::drawSteer(QPainter &p) {
 
 }
 
-QPixmap NvgWindow::get_icon_iol_com(const char* key) {
+QPixmap OnroadHud::get_icon_iol_com(const char* key) {
   auto item = ic_oil_com.find(key);
   if(item == ic_oil_com.end()) {
     QString str;
@@ -840,7 +852,7 @@ QPixmap NvgWindow::get_icon_iol_com(const char* key) {
     return item.value();
 }
 
-void NvgWindow::drawRestArea(QPainter &p) {
+void OnroadHud::drawRestArea(QPainter &p) {
   if(width() < 1850)
     return;
 
@@ -865,7 +877,7 @@ void NvgWindow::drawRestArea(QPainter &p) {
   }
 }
 
-void NvgWindow::drawRestAreaItem(QPainter &p, int yPos, capnp::Text::Reader image, capnp::Text::Reader title,
+void OnroadHud::drawRestAreaItem(QPainter &p, int yPos, capnp::Text::Reader image, capnp::Text::Reader title,
         capnp::Text::Reader oilPrice, capnp::Text::Reader distance, bool lastItem) {
 
   int mx = 20;
@@ -906,7 +918,7 @@ void NvgWindow::drawRestAreaItem(QPainter &p, int yPos, capnp::Text::Reader imag
   p.drawText(rc.left()+rc.width()-rect.width()-mx-5, y + box_height/2 + 60, distance.cStr());
 }
 
-void NvgWindow::drawTurnSignals(QPainter &p) {
+void OnroadHud::drawTurnSignals(QPainter &p) {
   static int blink_index = 0;
   static int blink_wait = 0;
   static double prev_ts = 0.0;
@@ -984,7 +996,7 @@ void NvgWindow::drawTurnSignals(QPainter &p) {
   p.setOpacity(1.);
 }
 
-void NvgWindow::drawGpsStatus(QPainter &p) {
+void OnroadHud::drawGpsStatus(QPainter &p) {
   const SubMaster &sm = *(uiState()->sm);
   auto gps = sm["gpsLocationExternal"].getGpsLocationExternal();
   float accuracy = gps.getAccuracy();
@@ -1012,7 +1024,7 @@ void NvgWindow::drawGpsStatus(QPainter &p) {
   p.setOpacity(1.);
 }
 
-void NvgWindow::drawDebugText(QPainter &p) {
+void OnroadHud::drawDebugText(QPainter &p) {
   const SubMaster &sm = *(uiState()->sm);
   QString str, temp;
 
