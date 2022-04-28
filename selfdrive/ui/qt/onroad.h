@@ -49,53 +49,6 @@ protected:
   double prev_draw_t = 0;
   FirstOrderFilter fps_filter;
 
-  uint64_t last_update_params;
-};
-
-// container for all onroad widgets
-class OnroadHud;
-class OnroadWindow : public QWidget {
-  Q_OBJECT
-
-public:
-  OnroadWindow(QWidget* parent = 0);
-  bool isMapVisible() const { return map && map->isVisible(); }
-
-protected:
-  void mousePressEvent(QMouseEvent* e) override;
-  void mouseReleaseEvent(QMouseEvent* e) override;
-
-  void paintEvent(QPaintEvent *event) override;
-
-private:
-  OnroadHud *hud;
-  OnroadAlerts *alerts;
-  NvgWindow *nvg;
-  QColor bg = bg_colors[STATUS_DISENGAGED];
-  QWidget *map = nullptr;
-  QHBoxLayout* split;
-
-  // neokii
-private:
-  ScreenRecoder* recorder;
-  std::shared_ptr<QTimer> record_timer;
-  QPoint startPos;
-
-  uint64_t last_update_hud;
-
-
-private slots:
-  void offroadTransition(bool offroad);
-  void updateState(const UIState &s);
-};
-
-class OnroadHud : public QWidget {
-  Q_OBJECT
-
-public:
-  explicit OnroadHud(QWidget *parent);
-
-private:
   // neokii
   void drawIcon(QPainter &p, int x, int y, QPixmap &img, QBrush bg, float opacity);
   void drawText(QPainter &p, int x, int y, const QString &text, int alpha = 255);
@@ -105,6 +58,8 @@ private:
 
   const int radius = 192;
   const int img_size = (radius / 2) * 1.5;
+
+  uint64_t last_update_params;
 
   // neokii
   QPixmap ic_brake;
@@ -134,4 +89,36 @@ private:
   QPixmap get_icon_iol_com(const char* key);
   void drawRestAreaItem(QPainter &p, int yPos, capnp::Text::Reader image, capnp::Text::Reader title,
                         capnp::Text::Reader oilPrice, capnp::Text::Reader distance, bool lastItem);
+};
+
+// container for all onroad widgets
+class OnroadWindow : public QWidget {
+  Q_OBJECT
+
+public:
+  OnroadWindow(QWidget* parent = 0);
+  bool isMapVisible() const { return map && map->isVisible(); }
+
+protected:
+  void mousePressEvent(QMouseEvent* e) override;
+  void mouseReleaseEvent(QMouseEvent* e) override;
+
+  void paintEvent(QPaintEvent *event) override;
+
+private:
+  OnroadAlerts *alerts;
+  NvgWindow *nvg;
+  QColor bg = bg_colors[STATUS_DISENGAGED];
+  QWidget *map = nullptr;
+  QHBoxLayout* split;
+
+  // neokii
+private:
+  ScreenRecoder* recorder;
+  std::shared_ptr<QTimer> record_timer;
+  QPoint startPos;
+
+private slots:
+  void offroadTransition(bool offroad);
+  void updateState(const UIState &s);
 };
