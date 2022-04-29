@@ -30,7 +30,12 @@ class LatControlTorque(LatControl):
     self.pid.neg_limit = -self.steer_max
     self.use_steering_angle = CP.lateralTuning.torque.useSteeringAngle
     self.friction = CP.lateralTuning.torque.friction
+    self.deadzone_bp = CP.lateralTuning.torque.deadzoneBP
+    self.deadzone_v = CP.lateralTuning.torque.deadzoneV
     self.tune = nTune(CP, self)
+
+    if len(self.deadzone_bp) == 0 or len(self.deadzone_v) == 0 or len(self.deadzone_bp) != len(self.deadzone_v):
+      raise Exception('Deadzone is not set properly.')
 
   def reset(self):
     super().reset()
@@ -57,7 +62,7 @@ class LatControlTorque(LatControl):
       measurement = actual_lateral_accel + LOW_SPEED_FACTOR * actual_curvature
       error = setpoint - measurement
 
-      deadzone = interp(CS.vEgo, CP.lateralTuning.torque.deadzoneBP, CP.lateralTuning.torque.deadzoneV)
+      deadzone = interp(CS.vEgo, self.deadzone_bp, self.deadzone_v)
       error_deadzone = apply_deadzone(error, deadzone)
 
       pid_log.error = error_deadzone
