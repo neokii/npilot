@@ -11,7 +11,6 @@ from common.params import Params, put_nonblocking
 import cereal.messaging as messaging
 from common.conversions import Conversions as CV
 from panda import ALTERNATIVE_EXPERIENCE
-from selfdrive.controls.lib.latcontrol_torque import LatControlTorque
 from selfdrive.swaglog import cloudlog
 from selfdrive.boardd.boardd import can_list_to_can_capnp
 from selfdrive.car.car_helpers import get_car, get_startup_event, get_one_can
@@ -23,6 +22,7 @@ from selfdrive.controls.lib.latcontrol_pid import LatControlPID
 from selfdrive.controls.lib.latcontrol_indi import LatControlINDI
 from selfdrive.controls.lib.latcontrol_lqr import LatControlLQR
 from selfdrive.controls.lib.latcontrol_angle import LatControlAngle
+from selfdrive.controls.lib.latcontrol_torque import LatControlTorque
 from selfdrive.controls.lib.events import Events, ET
 from selfdrive.controls.lib.alertmanager import AlertManager, set_offroad_alert
 from selfdrive.controls.lib.vehicle_model import VehicleModel
@@ -101,8 +101,7 @@ class Controls:
       self.sm = messaging.SubMaster(['deviceState', 'pandaStates', 'peripheralState', 'modelV2', 'liveCalibration',
                                      'driverMonitoringState', 'longitudinalPlan', 'lateralPlan', 'liveLocationKalman',
                                      'managerState', 'liveParameters', 'radarState'] + self.camera_packets + joystick_packet,
-                                     ignore_alive=ignore, ignore_avg_freq=['radarState', 'longitudinalPlan'])
-
+                                    ignore_alive=ignore, ignore_avg_freq=['radarState', 'longitudinalPlan'])
 
     # set alternative experiences from parameters
     self.disengage_on_accelerator = params.get_bool("DisengageOnAccelerator")
@@ -313,9 +312,11 @@ class Controls:
         self.events.add(EventName.relayMalfunction)
 
     # Check for HW or system issues
-    if len(self.sm['radarState'].radarErrors):
+    if self.rk.lagging:
+      self.events.add(EventName.controlsdLagging)
+    elif len(self.sm['radarState'].radarErrors):
       self.events.add(EventName.radarFault)
-    elif not self.sm.valid["pandaStates"]:
+    elif not self.sm.valid['pandaStates']:
       self.events.add(EventName.usbError)
     elif not self.sm.all_checks() or self.can_rcv_error:
 
@@ -379,10 +380,11 @@ class Controls:
       #  if not self.sm['liveLocationKalman'].gpsOK and (self.distance_traveled > 1000):
       #    # Not show in first 1 km to allow for driving out of garage. This event shows after 5 minutes
       #    self.events.add(EventName.noGps)
-      if not self.sm.all_alive(self.camera_packets):
-        self.events.add(EventName.cameraMalfunction)
-      elif not self.sm.all_freq_ok(self.camera_packets):
-        self.events.add(EventName.cameraFrameRate)
+      if not self.rk.lagging:
+        if not self.sm.all_alive(self.camera_packets):
+          self.events.add(EventName.cameraMalfunction)
+        elif not self.sm.all_freq_ok(self.camera_packets):
+          self.events.add(EventName.cameraFrameRate)
 
       if self.sm['modelV2'].frameDropPerc > 20:
         self.events.add(EventName.modeldLagging)
@@ -597,7 +599,7 @@ class Controls:
       # accel PID loop
       pid_accel_limits = self.CI.get_pid_accel_limits(self.CP, CS.vEgo, self.v_cruise_kph * CV.KPH_TO_MS)
       t_since_plan = (self.sm.frame - self.sm.rcv_frame['longitudinalPlan']) * DT_CTRL
-      actuators.accel = self.LoC.update(CC.longActive and CS.cruiseState.enabledAcc, CS, self.CP, long_plan, pid_accel_limits, t_since_plan,
+      actuators.accel = self.LoC.update(CC.longActive and CS.cruiseState.enabledAcc, CS, long_plan, pid_accel_limits, t_since_plan,
                                         self.sm['radarState'])
 
       # Steering PID loop and lateral MPC
@@ -605,8 +607,8 @@ class Controls:
                                                                              lat_plan.psis,
                                                                              lat_plan.curvatures,
                                                                              lat_plan.curvatureRates)
-      actuators.steer, actuators.steeringAngleDeg, lac_log = self.LaC.update(CC.latActive, CS, self.CP, self.VM,
-                                                                             params, self.last_actuators, desired_curvature,
+      actuators.steer, actuators.steeringAngleDeg, lac_log = self.LaC.update(CC.latActive, CS, self.VM, params,
+                                                                             self.last_actuators, desired_curvature,
                                                                              desired_curvature_rate, self.sm['liveLocationKalman'])
     else:
       lac_log = log.ControlsState.LateralDebugState.new_message()

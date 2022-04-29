@@ -1,9 +1,10 @@
 import math
-from selfdrive.controls.lib.pid import PIDController
+
+from cereal import log
 from common.numpy_fast import interp
 from selfdrive.controls.lib.latcontrol import LatControl, MIN_STEER_SPEED
+from selfdrive.controls.lib.pid import PIDController
 from selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
-from cereal import log
 from selfdrive.ntune import nTune
 from selfdrive.controls.lib.latcontrol_pid import ERROR_RATE_FRAME
 
@@ -14,9 +15,10 @@ from selfdrive.controls.lib.latcontrol_pid import ERROR_RATE_FRAME
 
 # This controller applies torque to achieve desired lateral
 # accelerations. To compensate for the low speed effects we
-# use a LOW_SPEED_FACTOR in the error. Additionally there is
+# use a LOW_SPEED_FACTOR in the error. Additionally, there is
 # friction in the steering wheel that needs to be overcome to
 # move it at all, this is compensated for too.
+
 
 LOW_SPEED_FACTOR = 200
 JERK_THRESHOLD = 0.2
@@ -33,12 +35,10 @@ def apply_deadzone(error, deadzone):
 class LatControlTorque(LatControl):
   def __init__(self, CP, CI):
     super().__init__(CP, CI)
+    self.CP = CP
     self.pid = PIDController(CP.lateralTuning.torque.kp, CP.lateralTuning.torque.ki,
-                            k_f=CP.lateralTuning.torque.kf, pos_limit=1.0, neg_limit=-1.0)
+                             k_f=CP.lateralTuning.torque.kf, pos_limit=self.steer_max, neg_limit=-self.steer_max)
     self.get_steer_feedforward = CI.get_steer_feedforward_function()
-    self.steer_max = 1.0
-    self.pid.pos_limit = self.steer_max
-    self.pid.neg_limit = -self.steer_max
     self.use_steering_angle = CP.lateralTuning.torque.useSteeringAngle
     self.friction = CP.lateralTuning.torque.friction
     self.deadzone_bp = CP.lateralTuning.torque.deadzoneBP
@@ -52,7 +52,7 @@ class LatControlTorque(LatControl):
     super().reset()
     self.pid.reset()
 
-  def update(self, active, CS, CP, VM, params, last_actuators, desired_curvature, desired_curvature_rate, llk):
+  def update(self, active, CS, VM, params, last_actuators, desired_curvature, desired_curvature_rate, llk):
     self.tune.check()
     pid_log = log.ControlsState.LateralTorqueState.new_message()
 
@@ -66,9 +66,9 @@ class LatControlTorque(LatControl):
         actual_curvature = -VM.calc_curvature(math.radians(CS.steeringAngleDeg - params.angleOffsetDeg), CS.vEgo, params.roll)
       else:
         actual_curvature = llk.angularVelocityCalibrated.value[2] / CS.vEgo
-      desired_lateral_accel = desired_curvature * CS.vEgo**2
-      desired_lateral_jerk = desired_curvature_rate * CS.vEgo**2
-      actual_lateral_accel = actual_curvature * CS.vEgo**2
+      desired_lateral_accel = desired_curvature * CS.vEgo ** 2
+      desired_lateral_jerk = desired_curvature_rate * CS.vEgo ** 2
+      actual_lateral_accel = actual_curvature * CS.vEgo ** 2
 
       setpoint = desired_lateral_accel + LOW_SPEED_FACTOR * desired_curvature
       measurement = actual_lateral_accel + LOW_SPEED_FACTOR * actual_curvature
@@ -83,7 +83,7 @@ class LatControlTorque(LatControl):
       # convert friction into lateral accel units for feedforward
       friction_compensation = interp(desired_lateral_jerk, [-JERK_THRESHOLD, JERK_THRESHOLD],
                                      [-self.friction, self.friction])
-      ff += friction_compensation / CP.lateralTuning.torque.kf
+      ff += friction_compensation / self.CP.lateralTuning.torque.kf
       output_torque = self.pid.update(error_deadzone,
                                       override=CS.steeringPressed, feedforward=ff,
                                       speed=CS.vEgo,

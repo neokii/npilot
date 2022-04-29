@@ -110,6 +110,12 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     cruiseMismatch @106;
     lkasDisabled @107;
     canBusMissing @111;
+    controlsdLagging @112;
+    
+    turningIndicatorOn @113;
+    autoLaneChange @114;
+    slowingDownSpeed @115;
+    slowingDownSpeedSound @116;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -133,11 +139,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     modelLagWarningDEPRECATED @93;
     startupOneplusDEPRECATED @82;
     startupFuzzyFingerprintDEPRECATED @97;
-    
-    turningIndicatorOn @112;
-    autoLaneChange @113;
-    slowingDownSpeed @114;
-    slowingDownSpeedSound @115;
   }
 }
 
