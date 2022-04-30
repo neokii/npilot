@@ -37,12 +37,14 @@ class LatControlTorque(LatControl):
     super().__init__(CP, CI)
     self.CP = CP
     self.pid = PIDController(CP.lateralTuning.torque.kp, CP.lateralTuning.torque.ki,
+                             k_d=CP.lateralTuning.torque.kd,
                              k_f=CP.lateralTuning.torque.kf, pos_limit=self.steer_max, neg_limit=-self.steer_max)
     self.get_steer_feedforward = CI.get_steer_feedforward_function()
     self.use_steering_angle = CP.lateralTuning.torque.useSteeringAngle
     self.friction = CP.lateralTuning.torque.friction
     self.deadzone_bp = CP.lateralTuning.torque.deadzoneBP
     self.deadzone_v = CP.lateralTuning.torque.deadzoneV
+    self.errors = []
     self.tune = nTune(CP, self)
 
     if len(self.deadzone_bp) == 0 or len(self.deadzone_v) == 0 or len(self.deadzone_bp) != len(self.deadzone_v):
@@ -51,6 +53,7 @@ class LatControlTorque(LatControl):
   def reset(self):
     super().reset()
     self.pid.reset()
+    self.errors = []
 
   def update(self, active, CS, VM, params, last_actuators, desired_curvature, desired_curvature_rate, llk):
     self.tune.check()
@@ -74,6 +77,14 @@ class LatControlTorque(LatControl):
       measurement = actual_lateral_accel + LOW_SPEED_FACTOR * actual_curvature
       error = setpoint - measurement
 
+      error_rate = 0
+      if len(self.errors) >= ERROR_RATE_FRAME:
+        error_rate = (error - self.errors[-ERROR_RATE_FRAME]) / ERROR_RATE_FRAME
+
+      self.errors.append(float(error))
+      while len(self.errors) > ERROR_RATE_FRAME:
+        self.errors.pop(0)
+
       deadzone = interp(CS.vEgo, self.deadzone_bp, self.deadzone_v)
       error_deadzone = apply_deadzone(error, deadzone)
 
@@ -84,7 +95,7 @@ class LatControlTorque(LatControl):
       friction_compensation = interp(desired_lateral_jerk, [-JERK_THRESHOLD, JERK_THRESHOLD],
                                      [-self.friction, self.friction])
       ff += friction_compensation / self.CP.lateralTuning.torque.kf
-      output_torque = self.pid.update(error_deadzone,
+      output_torque = self.pid.update(error_deadzone, error_rate,
                                       override=CS.steeringPressed, feedforward=ff,
                                       speed=CS.vEgo,
                                       freeze_integrator=CS.steeringRateLimited)

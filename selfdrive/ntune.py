@@ -229,6 +229,8 @@ class nTune():
       updated = True
     if self.checkValue("kf", 0.0, 1.0, 0.2):
       updated = True
+    if self.checkValue("kd", 0.0, 1.0, 0.0):
+      updated = True
 
     return updated
 
@@ -272,6 +274,7 @@ class nTune():
       torque.use_steering_angle = float(self.config["useSteeringAngle"]) > 0.5
       torque.pid._k_p = [[0], [float(self.config["kp"])]]
       torque.pid._k_i = [[0], [float(self.config["ki"])]]
+      torque.pid._k_d = [[0], [float(self.config["kd"])]]
       torque.pid.k_f = float(self.config["kf"])
       torque.reset()
 
@@ -290,6 +293,7 @@ class nTune():
           self.config["useSteeringAngle"] = 1. if self.CP.lateralTuning.torque.useSteeringAngle else 0.
           self.config["kp"] = round(self.CP.lateralTuning.torque.kp, 3)
           self.config["ki"] = round(self.CP.lateralTuning.torque.ki, 3)
+          self.config["kd"] = round(self.CP.lateralTuning.torque.kd, 3)
           self.config["kf"] = round(self.CP.lateralTuning.torque.kf, 3)
         else:
           self.config["useLiveSteerRatio"] = 1.
