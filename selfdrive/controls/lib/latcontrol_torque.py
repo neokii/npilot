@@ -42,13 +42,9 @@ class LatControlTorque(LatControl):
     self.get_steer_feedforward = CI.get_steer_feedforward_function()
     self.use_steering_angle = CP.lateralTuning.torque.useSteeringAngle
     self.friction = CP.lateralTuning.torque.friction
-    self.deadzone_bp = CP.lateralTuning.torque.deadzoneBP
-    self.deadzone_v = CP.lateralTuning.torque.deadzoneV
+    self.deadzone = CP.lateralTuning.torque.deadzone
     self.errors = []
     self.tune = nTune(CP, self)
-
-    if len(self.deadzone_bp) == 0 or len(self.deadzone_v) == 0 or len(self.deadzone_bp) != len(self.deadzone_v):
-      raise Exception('Deadzone is not set properly.')
 
   def reset(self):
     super().reset()
@@ -85,8 +81,7 @@ class LatControlTorque(LatControl):
       while len(self.errors) > ERROR_RATE_FRAME:
         self.errors.pop(0)
 
-      deadzone = interp(CS.vEgo, self.deadzone_bp, self.deadzone_v)
-      error_deadzone = apply_deadzone(error, deadzone)
+      error_deadzone = apply_deadzone(error, self.deadzone)
 
       pid_log.error = error_deadzone
 
