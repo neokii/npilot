@@ -543,8 +543,7 @@ struct CarParams {
     friction @3 :Float32;
     kf @4 :Float32;
     kd @5 :Float32;
-    deadzoneBP @6 :List(Float32);
-    deadzoneV @7 :List(Float32);
+    deadzone @6 :Float32;
   }
 
   struct LongitudinalPIDTuning {
