@@ -15,10 +15,10 @@
 #include <OMX_QCOMExtns.h>
 #include <OMX_VideoExt.h>
 #include "libyuv.h"
-
+#include "msm_media_info.h"
 #include "selfdrive/common/swaglog.h"
 #include "selfdrive/common/util.h"
-#include "selfdrive/loggerd/include/msm_media_info.h"
+
 
 using namespace libyuv;
 
