@@ -275,7 +275,7 @@ class nTune():
       max_lat_accel = float(self.config["maxLatAccel"])
       torque.pid._k_p = [[0], [1.0 / max_lat_accel]]
       torque.pid.k_f = 1.0 / max_lat_accel
-      torque.pid._k_i = [[0], [0.25 / max_lat_accel]]
+      torque.pid._k_i = [[0], [0.1 / max_lat_accel]]
       torque.pid._k_d = [[0], [float(self.config["kd"])]]
       torque.friction = float(self.config["friction"])
       torque.deadzone = float(self.config["deadzone"])
