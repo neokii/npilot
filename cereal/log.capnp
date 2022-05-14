@@ -570,6 +570,8 @@ struct ControlsState @0x97ff69c53601abf1 {
   ufAccelCmd @33 :Float32;
   aTarget @35 :Float32;
   curvature @37 :Float32;  # path curvature from vehicle model
+  desiredCurvature @61 :Float32;  # lag adjusted curvatures used by lateral controllers
+  desiredCurvatureRate @62 :Float32;
   forceDecel @51 :Bool;
 
   # UI alerts
@@ -594,21 +596,21 @@ struct ControlsState @0x97ff69c53601abf1 {
     torqueState @60 :LateralTorqueState;
   }
 
-  angleSteers @61 :Float32;
-  applyAccel @62 :Float32;
-  aReqValue @63 :Float32;
-  aReqValueMin @64 :Float32;
-  aReqValueMax @65 :Float32;
+  angleSteers @63 :Float32;
+  applyAccel @64 :Float32;
+  aReqValue @65 :Float32;
+  aReqValueMin @66 :Float32;
+  aReqValueMax @67 :Float32;
 
-  steerRatio @66 :Float32;
-  steerRateCost @67 :Float32;
-  steerActuatorDelay @68 :Float32;
-  sccGasFactor @69 :Float32;
-  sccBrakeFactor @70 :Float32;
-  sccCurvatureFactor @71 :Float32;
+  steerRatio @68 :Float32;
+  steerRateCost @69 :Float32;
+  steerActuatorDelay @70 :Float32;
+  sccGasFactor @71 :Float32;
+  sccBrakeFactor @72 :Float32;
+  sccCurvatureFactor @73 :Float32;
 
-  sccStockCamAct @72 :Float32;
-  sccStockCamStatus @73 :Float32;
+  sccStockCamAct @74 :Float32;
+  sccStockCamStatus @75 :Float32;
 
 
   enum OpenpilotState @0xdbe58b96d2d1ac61 {
@@ -1097,12 +1099,11 @@ struct ProcLog {
 }
 
 struct GnssMeasurements {
-  # Position in lat,long,alt for debugging purposes.
-  # Latitude and longitude in degrees. Altitude In meters above the WGS 84 reference ellipsoid.
-  position @0 :List(Float64);
+  positionECEF @0 :List(Float64);
+  velocityECEF @1 :List(Float64);
   # Todo sync this with timing pulse of ublox
-  ubloxMonoTime @1 :UInt64;
-  correctedMeasurements @2 :List(CorrectedMeasurement);
+  ubloxMonoTime @2 :UInt64;
+  correctedMeasurements @3 :List(CorrectedMeasurement);
 
   struct CorrectedMeasurement {
     constellationId @0 :ConstellationId;
