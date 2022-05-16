@@ -259,8 +259,6 @@ def thermald_thread(end_event, hw_queue):
     msg.deviceState.wifiIpAddress = last_hw_state.wifi_address
 
     msg.deviceState.screenBrightnessPercent = HARDWARE.get_screen_brightness()
-    msg.deviceState.batteryPercent = HARDWARE.get_battery_capacity()
-    msg.deviceState.batteryCurrent = HARDWARE.get_battery_current()
     msg.deviceState.usbOnline = HARDWARE.get_usb_present()
     current_filter.update(msg.deviceState.batteryCurrent / 1e6)
 
