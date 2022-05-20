@@ -4,7 +4,7 @@ from typing import List
 from cereal import car
 from common.numpy_fast import interp
 from common.conversions import Conversions as CV
-from selfdrive.car.hyundai.values import CAR, Buttons, CarControllerParams
+from selfdrive.car.hyundai.values import CAR, Buttons, CarControllerParams, HDA2_CAR
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, gen_empty_fingerprint, get_safety_config
 from selfdrive.car.interfaces import CarInterfaceBase
 from common.params import Params
@@ -17,7 +17,7 @@ ButtonType = car.CarState.ButtonEvent.Type
 class CarInterface(CarInterfaceBase):
   def __init__(self, CP, CarController, CarState):
     super().__init__(CP, CarController, CarState)
-    self.cp2 = self.CS.get_can2_parser(CP)
+
     self.mad_mode_enabled = Params().get_bool('MadModeEnabled')
 
   @staticmethod
@@ -37,7 +37,7 @@ class CarInterface(CarInterfaceBase):
     ret.openpilotLongitudinalControl = Params().get_bool('LongControlEnabled')
 
     ret.carName = "hyundai"
-    ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.hyundaiLegacy, 0)]
+    ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.hyundaiCommunity, 0)]
 
     tire_stiffness_factor = 1.
     ret.maxSteeringAngleDeg = 1000.
@@ -318,6 +318,23 @@ class CarInterface(CarInterfaceBase):
         ret.lateralTuning.torque.friction = 0.01
         ret.lateralTuning.torque.kd = 0.0
 
+    elif candidate == CAR.EV6:
+      ret.mass = 2055 + STD_CARGO_KG
+      ret.wheelbase = 2.9
+      ret.steerRatio = 16.
+      ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.noOutput),
+                           get_safety_config(car.CarParams.SafetyModel.hyundaiHDA2)]
+      tire_stiffness_factor = 0.65
+
+      if ret.lateralTuning.which() == 'torque':
+        ret.lateralTuning.torque.useSteeringAngle = True
+        max_lat_accel = 2.5
+        ret.lateralTuning.torque.kp = 1.0 / max_lat_accel
+        ret.lateralTuning.torque.kf = 1.0 / max_lat_accel
+        ret.lateralTuning.torque.ki = 0.2 / max_lat_accel
+        ret.lateralTuning.torque.friction = 0.0
+        ret.lateralTuning.torque.kd = 1.0
+
 
     ret.radarTimeStep = 0.05
 
@@ -340,37 +357,32 @@ class CarInterface(CarInterfaceBase):
 
     ret.stoppingControl = True
 
-    ret.enableBsm = 0x58b in fingerprint[0]
-    ret.enableAutoHold = 1151 in fingerprint[0]
+    if candidate in HDA2_CAR:
+      ret.enableBsm = 0x58b in fingerprint[0]
+      ret.radarOffCan = False
+    else:
+      ret.enableBsm = 0x58b in fingerprint[0]
+      ret.enableAutoHold = 1151 in fingerprint[0]
 
-    # ignore CAN2 address if L-CAN on the same BUS
-    ret.mdpsBus = 1 if 593 in fingerprint[1] and 1296 not in fingerprint[1] else 0
-    ret.sasBus = 1 if 688 in fingerprint[1] and 1296 not in fingerprint[1] else 0
-    ret.sccBus = 0 if 1056 in fingerprint[0] else 1 if 1056 in fingerprint[1] and 1296 not in fingerprint[1] \
-                                                                     else 2 if 1056 in fingerprint[2] else -1
+      # ignore CAN2 address if L-CAN on the same BUS
+      ret.mdpsBus = 1 if 593 in fingerprint[1] and 1296 not in fingerprint[1] else 0
+      ret.sasBus = 1 if 688 in fingerprint[1] and 1296 not in fingerprint[1] else 0
+      ret.sccBus = 0 if 1056 in fingerprint[0] else 1 if 1056 in fingerprint[1] and 1296 not in fingerprint[1] \
+        else 2 if 1056 in fingerprint[2] else -1
 
-    if ret.sccBus >= 0:
-      ret.hasScc13 = 1290 in fingerprint[ret.sccBus]
-      ret.hasScc14 = 905 in fingerprint[ret.sccBus]
+      if ret.sccBus >= 0:
+        ret.hasScc13 = 1290 in fingerprint[ret.sccBus]
+        ret.hasScc14 = 905 in fingerprint[ret.sccBus]
 
-    ret.hasEms = 608 in fingerprint[0] and 809 in fingerprint[0]
-    ret.hasLfaHda = 1157 in fingerprint[0]
+      ret.hasEms = 608 in fingerprint[0] and 809 in fingerprint[0]
+      ret.hasLfaHda = 1157 in fingerprint[0]
+      ret.radarOffCan = ret.sccBus == -1
 
-    ret.radarOffCan = ret.sccBus == -1
     ret.pcmCruise = not ret.radarOffCan
 
-    # set safety_hyundai_community only for non-SCC, MDPS harrness or SCC harrness cars or cars that have unknown issue
-    if ret.radarOffCan or ret.mdpsBus == 1 or ret.openpilotLongitudinalControl or ret.sccBus == 1 or Params().get_bool('MadModeEnabled'):
-      ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.hyundaiCommunity, 0)]
     return ret
 
   def _update(self, c: car.CarControl) -> car.CarState:
-    pass
-
-  def update(self, c: car.CarControl, can_strings: List[bytes]) -> car.CarState:
-    self.cp.update_strings(can_strings)
-    self.cp2.update_strings(can_strings)
-    self.cp_cam.update_strings(can_strings)
 
     ret = self.CS.update(self.cp, self.cp2, self.cp_cam)
     ret.canValid = self.cp.can_valid and self.cp2.can_valid and self.cp_cam.can_valid
@@ -425,8 +437,6 @@ class CarInterface(CarInterfaceBase):
 
     if self.CC.longcontrol and self.CS.cruise_unavail:
       events.add(EventName.brakeUnavailable)
-    #if abs(ret.steeringAngleDeg) > 90. and EventName.steerTempUnavailable not in events.events:
-    #  events.add(EventName.steerTempUnavailable)
     if self.low_speed_alert and not self.CS.mdps_bus:
       events.add(EventName.belowSteerSpeed)
     if self.CC.turning_indicator_alert:
@@ -456,9 +466,8 @@ class CarInterface(CarInterfaceBase):
 
     ret.events = events.to_msg()
 
-    self.CS.out = ret.as_reader()
-    return self.CS.out
+    return ret
 
-  # scc smoother - hyundai only
+  # HKG
   def apply(self, c, controls):
     return self.CC.update(c, self.CS, controls)

@@ -8,7 +8,11 @@ class CarControllerParams:
   ACCEL_MIN = -3.5
 
   def __init__(self, CP):
-    self.STEER_MAX = 409   # 409 is the max, 255 is stock
+    if CP.carFingerprint in HDA2_CAR:
+      self.STEER_MAX = 150
+    else:
+      self.STEER_MAX = 409
+
     self.STEER_DELTA_UP = 3
     self.STEER_DELTA_DOWN = 6
     self.STEER_DRIVER_ALLOWANCE = 50
@@ -68,6 +72,7 @@ class CAR:
   K7 = "KIA K7 2016-2019"
   K7_HEV = "KIA K7 HEV 2016-2019"
   K9 = "KIA K9 2016-2019"
+  EV6 = "KIA EV6 2022"
 
 class Buttons:
   NONE = 0
@@ -321,7 +326,23 @@ FINGERPRINTS = {
   }],
 }
 
-FW_VERSIONS = {}
+FW_VERSIONS = {
+  CAR.EV6: {
+    (Ecu.esp, 0x7d1, None): [
+      b'\xf1\x8758520CV100\xf1\x00CV  IEB \x02 101!\x10\x18 58520-CV100',
+    ],
+    (Ecu.eps, 0x7d4, None): [
+      b'\xf1\x00CV1 MDPS R 1.00 1.04 57700-CV000 1B30',
+    ],
+    (Ecu.fwdRadar, 0x7d0, None): [
+      b'\xf1\x00CV1_ RDR -----      1.00 1.01 99110-CV000         ',
+      b'\xf1\x8799110CV000\xf1\x00CV1_ RDR -----      1.00 1.01 99110-CV000         ',
+    ],
+    (Ecu.fwdCamera, 0x7c4, None): [
+      b'\xf1\x00CV1 MFC  AT USA LHD 1.00 1.05 99210-CV000 211027',
+    ],
+  },
+}
 
 CHECKSUM = {
   "crc8": [CAR.SANTA_FE, CAR.SONATA, CAR.PALISADE, CAR.SONATA_HEV, CAR.SONATA21_HEV, CAR.SELTOS, CAR.ELANTRA_2021,
@@ -365,6 +386,8 @@ HYBRID_CAR = {CAR.K5_HEV, CAR.KONA_HEV, CAR.NIRO_HEV, CAR.NIRO_HEV_2021, CAR.SON
 EV_CAR = {CAR.IONIQ_EV_LTD, CAR.IONIQ_EV_2020, CAR.KONA_EV, CAR.NIRO_EV}
 
 EV_HYBRID_CAR = EV_CAR | HYBRID_CAR
+
+HDA2_CAR = {CAR.EV6, }
 
 DBC = {
   # genesis
@@ -419,6 +442,7 @@ DBC = {
   CAR.K7: dbc_dict('hyundai_kia_generic', None),
   CAR.K7_HEV: dbc_dict('hyundai_kia_generic', None),
   CAR.K9: dbc_dict('hyundai_kia_generic', None),
+  CAR.EV6: dbc_dict('kia_ev6', None),
 }
 
 STEER_THRESHOLD = 150

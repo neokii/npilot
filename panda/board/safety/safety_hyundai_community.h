@@ -1,3 +1,14 @@
+bool Lcan_bus1 = false;
+bool Fwd_bus1 = false;
+bool Fwd_obd = false;
+bool Fwd_bus2 = true;
+int OBD_cnt = 20;
+int LKAS11_bus0_cnt = 0;
+int Lcan_bus1_cnt = 0;
+int MDPS12_checksum = -1;
+int MDPS12_cnt = 0;
+int Last_StrColTq = 0;
+
 int LKAS11_op = 0;
 int MDPS12_op = 0;
 int CLU11_op = 0;

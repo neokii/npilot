@@ -4,11 +4,9 @@ from cereal import car
 from common.realtime import DT_CTRL
 from common.numpy_fast import clip, interp
 from selfdrive.car import apply_std_steer_torque_limits
-from selfdrive.car.hyundai.hyundaican import create_lkas11, create_clu11, \
-  create_scc11, create_scc12, create_scc13, create_scc14, \
-  create_mdps12, create_lfahda_mfc, create_hda_mfc
+from selfdrive.car.hyundai import hyundaican, hda2can
 from selfdrive.car.hyundai.scc_smoother import SccSmoother
-from selfdrive.car.hyundai.values import Buttons, CAR, FEATURES, CarControllerParams
+from selfdrive.car.hyundai.values import Buttons, HDA2_CAR, CAR, FEATURES, CarControllerParams
 from opendbc.can.packer import CANPacker
 from common.conversions import Conversions as CV
 from common.params import Params
@@ -44,12 +42,13 @@ def process_hud_alert(enabled, fingerprint, hud_control):
 
 class CarController:
   def __init__(self, dbc_name, CP, VM):
-    self.car_fingerprint = CP.carFingerprint
+    self.CP = CP
     self.params = CarControllerParams(CP)
     self.packer = CANPacker(dbc_name)
     self.frame = 0
 
     self.apply_steer_last = 0
+    self.last_button_frame = 0
     self.accel = 0
     self.lkas11_cnt = 0
     self.scc12_cnt = -1
@@ -86,6 +85,9 @@ class CarController:
     self.steer_fault_max_frames = CP.steerFaultMaxFrames
 
   def update(self, CC, CS, controls):
+    if self.CP.carFingerprint in HDA2_CAR:
+      return self.update_hda2(CC, CS)
+
     actuators = CC.actuators
     hud_control = CC.hudControl
     pcm_cancel_cmd = CC.cruiseControl.cancel
@@ -110,7 +112,7 @@ class CarController:
 
     self.apply_steer_last = apply_steer
 
-    sys_warning, sys_state, left_lane_warning, right_lane_warning = process_hud_alert(CC.enabled, self.car_fingerprint, hud_control)
+    sys_warning, sys_state, left_lane_warning, right_lane_warning = process_hud_alert(CC.enabled, self.CP.carFingerprint, hud_control)
 
     if self.haptic_feedback_speed_camera:
       if self.prev_active_cam != self.scc_smoother.active_cam:
@@ -156,23 +158,23 @@ class CarController:
         self.cut_steer_frames += 1
 
     can_sends = []
-    can_sends.append(create_lkas11(self.packer, self.frame, self.car_fingerprint, apply_steer, lkas_active,
+    can_sends.append(hyundaican.create_lkas11(self.packer, self.frame, self.CP.carFingerprint, apply_steer, lkas_active,
                                    CS.lkas11, sys_warning, sys_state, CC.enabled, hud_control.leftLaneVisible, hud_control.rightLaneVisible,
                                    left_lane_warning, right_lane_warning, 0, self.ldws_opt, cut_steer_temp))
 
     if CS.mdps_bus or CS.scc_bus == 1:  # send lkas11 bus 1 if mdps or scc is on bus 1
-      can_sends.append(create_lkas11(self.packer, self.frame, self.car_fingerprint, apply_steer, lkas_active,
+      can_sends.append(hyundaican.create_lkas11(self.packer, self.frame, self.CP.carFingerprint, apply_steer, lkas_active,
                                      CS.lkas11, sys_warning, sys_state, CC.enabled, hud_control.leftLaneVisible, hud_control.rightLaneVisible,
                                      left_lane_warning, right_lane_warning, 1, self.ldws_opt, cut_steer_temp))
 
     if self.frame % 2 and CS.mdps_bus: # send clu11 to mdps if it is not on bus 0
-      can_sends.append(create_clu11(self.packer, CS.mdps_bus, CS.clu11, Buttons.NONE, enabled_speed))
+      can_sends.append(hyundaican.create_clu11(self.packer, CS.mdps_bus, CS.clu11, Buttons.NONE, enabled_speed))
 
     if pcm_cancel_cmd and (self.longcontrol and not self.mad_mode_enabled):
-      can_sends.append(create_clu11(self.packer, CS.scc_bus, CS.clu11, Buttons.CANCEL, clu11_speed))
+      can_sends.append(hyundaican.create_clu11(self.packer, CS.scc_bus, CS.clu11, Buttons.CANCEL, clu11_speed))
 
-    if CS.mdps_bus or self.car_fingerprint in FEATURES["send_mdps12"]:  # send mdps12 to LKAS to prevent LKAS error
-      can_sends.append(create_mdps12(self.packer, self.frame, CS.mdps12))
+    if CS.mdps_bus or self.CP.carFingerprint in FEATURES["send_mdps12"]:  # send mdps12 to LKAS to prevent LKAS error
+      can_sends.append(hyundaican.create_mdps12(self.packer, self.frame, CS.mdps12))
 
     self.update_auto_resume(CC, CS, clu11_speed, can_sends)
     self.update_scc(CC, CS, actuators, controls, hud_control, can_sends)
@@ -181,10 +183,10 @@ class CarController:
     if self.frame % 5 == 0:
       activated_hda = road_speed_limiter_get_active()
       # activated_hda: 0 - off, 1 - main road, 2 - highway
-      if self.car_fingerprint in FEATURES["send_lfa_mfa"]:
-        can_sends.append(create_lfahda_mfc(self.packer, CC.enabled, activated_hda))
+      if self.CP.carFingerprint in FEATURES["send_lfa_mfa"]:
+        can_sends.append(hyundaican.create_lfahda_mfc(self.packer, CC.enabled, activated_hda))
       elif CS.has_lfa_hda:
-        can_sends.append(create_hda_mfc(self.packer, activated_hda, CS, hud_control.leftLaneVisible, hud_control.rightLaneVisible))
+        can_sends.append(hyundaican.create_hda_mfc(self.packer, activated_hda, CS, hud_control.leftLaneVisible, hud_control.rightLaneVisible))
 
     new_actuators = actuators.copy()
     new_actuators.steer = apply_steer / self.params.STEER_MAX
@@ -208,7 +210,7 @@ class CarController:
         self.resume_wait_timer -= 1
 
       elif abs(CS.lead_distance - self.last_lead_distance) > 0.1:
-        can_sends.append(create_clu11(self.packer, CS.scc_bus, CS.clu11, Buttons.RES_ACCEL, clu11_speed))
+        can_sends.append(hyundaican.create_clu11(self.packer, CS.scc_bus, CS.clu11, Buttons.RES_ACCEL, clu11_speed))
         self.resume_cnt += 1
 
         if self.resume_cnt >= randint(6, 8):
@@ -265,15 +267,15 @@ class CarController:
         self.scc12_cnt += 1
         self.scc12_cnt %= 0xF
 
-        can_sends.append(create_scc12(self.packer, apply_accel, CC.enabled, self.scc12_cnt, self.scc_live, CS.scc12,
+        can_sends.append(hyundaican.create_scc12(self.packer, apply_accel, CC.enabled, self.scc12_cnt, self.scc_live, CS.scc12,
                                       CS.out.gasPressed, CS.out.brakePressed, CS.out.cruiseState.standstill,
-                                      self.car_fingerprint))
+                                      self.CP.carFingerprint))
 
-        can_sends.append(create_scc11(self.packer, self.frame, CC.enabled, set_speed, hud_control.leadVisible, self.scc_live, CS.scc11,
+        can_sends.append(hyundaican.create_scc11(self.packer, self.frame, CC.enabled, set_speed, hud_control.leadVisible, self.scc_live, CS.scc11,
                        self.scc_smoother.active_cam, stock_cam))
 
         if self.frame % 20 == 0 and CS.has_scc13:
-          can_sends.append(create_scc13(self.packer, CS.scc13))
+          can_sends.append(hyundaican.create_scc13(self.packer, CS.scc13))
 
         if CS.has_scc14:
           acc_standstill = stopping if CS.out.vEgo < 2. else False
@@ -287,7 +289,43 @@ class CarController:
             obj_gap = 0
 
           can_sends.append(
-            create_scc14(self.packer, CC.enabled, CS.out.vEgo, acc_standstill, apply_accel, CS.out.gasPressed,
+            hyundaican.create_scc14(self.packer, CC.enabled, CS.out.vEgo, acc_standstill, apply_accel, CS.out.gasPressed,
                          obj_gap, CS.scc14))
     else:
       self.scc12_cnt = -1
+
+  def update_hda2(self, CC, CS):
+    actuators = CC.actuators
+
+    # Steering Torque
+    new_steer = int(round(actuators.steer * self.params.STEER_MAX))
+    apply_steer = apply_std_steer_torque_limits(new_steer, self.apply_steer_last, CS.out.steeringTorque, self.params)
+
+    if not CC.latActive:
+      apply_steer = 0
+
+    self.apply_steer_last = apply_steer
+
+    can_sends = []
+
+    # steering control
+    can_sends.append(hda2can.create_lkas(self.packer, CC.enabled, self.frame, CC.latActive, apply_steer))
+
+    # cruise cancel
+    if (self.frame - self.last_button_frame) * DT_CTRL > 0.25:
+      if CC.cruiseControl.cancel:
+        for _ in range(20):
+          can_sends.append(hda2can.create_buttons(self.packer, CS.buttons_counter + 1, True, False))
+        self.last_button_frame = self.frame
+
+      # cruise standstill resume
+      elif CC.enabled and CS.out.cruiseState.standstill:
+        can_sends.append(hda2can.create_buttons(self.packer, CS.buttons_counter + 1, False, True))
+        self.last_button_frame = self.frame
+
+    new_actuators = actuators.copy()
+    new_actuators.steer = apply_steer / self.params.STEER_MAX
+    new_actuators.accel = self.accel
+
+    self.frame += 1
+    return new_actuators, can_sends
