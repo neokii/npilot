@@ -8,7 +8,7 @@
 
 #include "libyuv.h"
 #include "selfdrive/camerad/transforms/rgb_to_yuv.h"
-#include "selfdrive/common/clutil.h"
+#include "common/clutil.h"
 
 #include "selfdrive/ui/qt/screenrecorder/screenrecorder.h"
 #include "selfdrive/ui/qt/util.h"

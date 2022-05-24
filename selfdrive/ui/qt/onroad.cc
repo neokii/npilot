@@ -6,7 +6,7 @@
 #include <QSound>
 #include <QMouseEvent>
 
-#include "selfdrive/common/timing.h"
+#include "common/timing.h"
 #include "selfdrive/ui/qt/util.h"
 #ifdef ENABLE_MAPS
 #include "selfdrive/ui/qt/maps/map.h"
