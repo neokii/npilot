@@ -362,19 +362,20 @@ void NvgWindow::paintGL() {
 }
 
 void NvgWindow::paintEvent(QPaintEvent *event) {
-  QPainter p;
-  p.begin(this);
+
+
+  UIState *s = uiState();
+  const cereal::ModelDataV2::Reader &model = (*s->sm)["modelV2"].getModelV2();
+
+  QPainter p(this);
 
   p.beginNativePainting();
+  CameraViewWidget::setFrameId(model.getFrameId());
   CameraViewWidget::paintGL();
   p.endNativePainting();
 
-  UIState *s = uiState();
-  if (s->worldObjectsVisible()) {
-    drawHud(p);
-  }
-
-  p.end();
+  if (s->worldObjectsVisible())
+    drawHud(p, model);
 
   double cur_draw_t = millis_since_boot();
   double dt = cur_draw_t - prev_draw_t;
@@ -433,7 +434,7 @@ void NvgWindow::drawText2(QPainter &p, int x, int y, int flags, const QString &t
   p.drawText(QRect(x, y, rect.width()+1, rect.height()), flags, text);
 }
 
-void NvgWindow::drawHud(QPainter &p) {
+void NvgWindow::drawHud(QPainter &p, const cereal::ModelDataV2::Reader &model) {
 
   p.setRenderHint(QPainter::Antialiasing);
   p.setPen(Qt::NoPen);
@@ -451,7 +452,7 @@ void NvgWindow::drawHud(QPainter &p) {
 
   drawLaneLines(p, s);
 
-  auto leads = sm["modelV2"].getModelV2().getLeadsV3();
+  auto leads = model.getLeadsV3();
   if (leads[0].getProb() > .5) {
     drawLead(p, leads[0], s->scene.lead_vertices[0], s->scene.lead_radar[0]);
   }
