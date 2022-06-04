@@ -452,6 +452,7 @@ struct CarParams {
   maxSteeringAngleDeg @54 :Float32;
   safetyConfigs @62 :List(SafetyConfig);
   alternativeExperience @65 :Int16;      # panda flag for features like no disengage on gas
+  maxLateralAccel @68 :Float32;
 
   steerMaxBPDEPRECATED @11 :List(Float32);
   steerMaxVDEPRECATED @12 :List(Float32);
@@ -516,18 +517,18 @@ struct CarParams {
     safetyParam2DEPRECATED @2 :UInt32;
   }
   
-  mdpsBus @68: Int8;
-  sasBus @69: Int8;
-  sccBus @70: Int8;
-  enableAutoHold @71 :Bool;
-  hasScc13 @72 :Bool;
-  hasScc14 @73 :Bool;
-  hasEms @74 :Bool;
-  hasLfaHda @75 :Bool;
-  steerFaultMaxAngle @76 :Int16;
-  steerFaultMaxFrames @77 :Int16;
+  mdpsBus @69: Int8;
+  sasBus @70: Int8;
+  sccBus @71: Int8;
+  enableAutoHold @72 :Bool;
+  hasScc13 @73 :Bool;
+  hasScc14 @74 :Bool;
+  hasEms @75 :Bool;
+  hasLfaHda @76 :Bool;
+  steerFaultMaxAngle @77 :Int16;
+  steerFaultMaxFrames @78 :Int16;
 
-  disableLateralLiveTuning @78 :Bool;
+  disableLateralLiveTuning @79 :Bool;
 
   struct LateralParams {
     torqueBP @0 :List(Int32);
@@ -642,8 +643,10 @@ struct CarParams {
   struct CarFw {
     ecu @0 :Ecu;
     fwVersion @1 :Data;
-    address @2: UInt32;
-    subAddress @3: UInt8;
+    address @2 :UInt32;
+    subAddress @3 :UInt8;
+    responseAddress @4 :UInt32;
+    request @5 :List(Data);
   }
 
   enum Ecu {
