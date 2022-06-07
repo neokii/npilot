@@ -656,6 +656,8 @@ void NvgWindow::drawMaxSpeed(QPainter &p) {
   float applyMaxSpeed = scc_smoother.getApplyMaxSpeed();
   float cruiseMaxSpeed = scc_smoother.getCruiseMaxSpeed();
 
+  bool is_cruise_set = (cruiseMaxSpeed > 0 && cruiseMaxSpeed < 255);
+
   int activeNDA = road_limit_speed.getActive();
   int roadLimitSpeed = road_limit_speed.getRoadLimitSpeed();
   int camLimitSpeed = road_limit_speed.getCamLimitSpeed();
@@ -728,7 +730,7 @@ void NvgWindow::drawMaxSpeed(QPainter &p) {
   {
     p.setPen(QColor(255, 255, 255, 230));
 
-    if(cruiseMaxSpeed > 10) {
+    if(is_cruise_set) {
       configFont(p, "Inter", 80, "Bold");
 
       if(is_metric)
@@ -754,7 +756,7 @@ void NvgWindow::drawMaxSpeed(QPainter &p) {
     p.setPen(QColor(255, 255, 255, 180));
 
     configFont(p, "Inter", 50, "Bold");
-    if(applyMaxSpeed > 10) {
+    if(is_cruise_set && applyMaxSpeed > 0) {
       if(is_metric)
         str.sprintf( "%d", (int)(applyMaxSpeed + 0.5));
       else
