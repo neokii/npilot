@@ -18,8 +18,6 @@ class CarInterface(CarInterfaceBase):
   def __init__(self, CP, CarController, CarState):
     super().__init__(CP, CarController, CarState)
 
-    self.mad_mode_enabled = Params().get_bool('MadModeEnabled')
-
   @staticmethod
   def get_pid_accel_limits(CP, current_speed, cruise_speed):
 
@@ -393,8 +391,8 @@ class CarInterface(CarInterfaceBase):
 
     # most HKG cars has no long control, it is safer and easier to engage by main on
 
-    if self.mad_mode_enabled:
-      ret.cruiseState.enabled = ret.cruiseState.available
+    #if self.mad_mode_enabled:
+    ret.cruiseState.enabled = ret.cruiseState.available
 
     # turning indicator alert logic
     if not self.CC.keep_steering_turn_signals and (ret.leftBlinker or ret.rightBlinker or self.CC.turning_signal_timer) and ret.vEgo < LANE_CHANGE_SPEED_MIN - 1.2:
