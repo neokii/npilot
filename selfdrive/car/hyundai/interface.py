@@ -297,7 +297,7 @@ class CarInterface(CarInterfaceBase):
       ret.mass = 1595. + STD_CARGO_KG
       ret.wheelbase = 2.855
       ret.centerToFront = ret.wheelbase * 0.4
-      ret.steerRatio = 17.25
+      ret.steerRatio = 17.5
     elif candidate == CAR.K9:
       ret.mass = 2005. + STD_CARGO_KG
       ret.wheelbase = 3.15
@@ -313,8 +313,8 @@ class CarInterface(CarInterfaceBase):
         ret.lateralTuning.torque.kp = 1.0 / max_lat_accel
         ret.lateralTuning.torque.kf = 1.0 / max_lat_accel
         ret.lateralTuning.torque.ki = 0.1 / max_lat_accel
-        ret.lateralTuning.torque.friction = 0.01
-        ret.lateralTuning.torque.kd = 0.0
+        ret.lateralTuning.torque.friction = 0.0
+        ret.lateralTuning.torque.kd = 1.0
 
     elif candidate == CAR.EV6:
       ret.mass = 2055 + STD_CARGO_KG
