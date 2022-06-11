@@ -201,7 +201,6 @@ def thermald_thread(end_event, hw_queue):
   fan_controller = None
 
   restart_triggered_ts = 0.
-  panda_state_ts = 0.
 
   while not end_event.is_set():
     sm.update(PANDA_STATES_TIMEOUT)
@@ -227,9 +226,6 @@ def thermald_thread(end_event, hw_queue):
       onroad_conditions["ignition"] = any(ps.ignitionLine or ps.ignitionCan for ps in pandaStates if ps.pandaType != log.PandaState.PandaType.unknown)
 
       pandaState = pandaStates[0]
-
-      if pandaState.pandaType != log.PandaState.PandaType.unknown:
-        panda_state_ts = sec_since_boot()
 
       in_car = pandaState.harnessStatus != log.PandaState.HarnessStatus.notConnected
 
