@@ -465,7 +465,7 @@ void NvgWindow::drawHud(QPainter &p, const cereal::ModelDataV2::Reader &model) {
   drawSteer(p);
   drawThermal(p);
   drawRestArea(p);
-  //drawTurnSignals(p);
+  drawTurnSignals(p);
   drawGpsStatus(p);
 
   if(s->show_debug && width() > 1200)
