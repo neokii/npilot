@@ -13,7 +13,7 @@
 #include "selfdrive/ui/qt/screenrecorder/screenrecorder.h"
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/ui.h"
-#include "selfdrive/hardware/hw.h"
+#include "system/hardware/hw.h"
 
 static long long milliseconds(void) {
     struct timeval tv;
