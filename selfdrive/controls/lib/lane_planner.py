@@ -4,7 +4,6 @@ from common.filter_simple import FirstOrderFilter
 from common.numpy_fast import interp, clip, mean
 from common.realtime import DT_MDL
 from system.swaglog import cloudlog
-from selfdrive.ntune import ntune_common_get
 
 ENABLE_ZORROBYTE = True
 ENABLE_INC_LANE_PROB = True
