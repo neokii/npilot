@@ -468,12 +468,6 @@ void NvgWindow::drawHud(QPainter &p, const cereal::ModelDataV2::Reader &model) {
   drawTurnSignals(p);
   drawGpsStatus(p);
 
-  if(s->show_turnsignal) // boxkon
-    drawTurnSignals(p);
-  if(s->show_gear)      // boxkon
-    drawCurrentGear(p);
-  if(s->show_engrpm)    //tenesi
-    drawEngRpm(p);
   if(s->show_debug && width() > 1200)
     drawDebugText(p);
 
@@ -1262,44 +1256,4 @@ void NvgWindow::drawDebugText(QPainter &p) {
   p.drawText(text_x, y, str);
 
   p.restore();
-}
-
-// tenesi
-void NvgWindow::drawEngRpm(QPainter &p) {
-  const SubMaster &sm = *(uiState()->sm);
-  auto car_state = sm["carState"].getCarState();
-
-  float eng_rpm = car_state.getEngRpm(); // car.capnp에 정의된 engrpm 변수명의 데이터를 읽는다..
-  float textSize_1 = 48;
-  float textSize_2 = 65;
-
-  QString rpm; // - rpm 데이터를 문자화한다..
-
-  rpm.sprintf("%.0f", eng_rpm); // 문자변수에 포맷을 지정해서 저장.
-  configFont(p, "Open Sans", textSize_2, "Regular");
-
-  QRect rc(220, 232, 184, 202);
-  p.setPen(QPen(QColor(0xff, 0xff, 0xff, 100), 10));
-  p.setBrush(QColor(0, 0, 0, 100));
-  p.drawRoundedRect(rc, 20, 20);
-  p.setPen(Qt::NoPen);
-
-  QColor textColor0 = QColor(255, 255, 255, 200); // white
-  QColor textColor1 = QColor(120, 255, 120, 200); // green
-  QColor textColor2 = QColor(255, 255, 0, 200); // yellow
-  QColor textColor3 = QColor(255, 0, 0, 200);  // red
-
-  if (eng_rpm < 1099) {
-   drawTextWithColor(p, rc.center().x(), rc.center().y() + 60, rpm, textColor0);
-  } else if (eng_rpm < 2300) {
-   drawTextWithColor(p, rc.center().x(), rc.center().y() + 60, rpm, textColor1);
-  } else if (eng_rpm < 2999) {
-   drawTextWithColor(p, rc.center().x(), rc.center().y() + 60, rpm, textColor2);
-  } else if (eng_rpm > 3000) {
-   drawTextWithColor(p, rc.center().x(), rc.center().y() + 60, rpm, textColor2);
-  }
-
-  configFont(p, "Open Sans", textSize_1, "Bold");
-  drawTextWithColor(p, rc.center().x(), 310, "RPM", textColor0);
-
 }

@@ -96,11 +96,6 @@ typedef struct UIScene {
   mat3 view_from_calib;
   cereal::PandaState::PandaType pandaType;
 
-
-  // Tenesi
-  float currentGear;
-  cereal::CarState::GearShifter getGearShifter;
-
   // modelV2
   float lane_line_probs[4];
   float road_edge_stds[2];
@@ -146,10 +141,6 @@ public:
   bool recording = false;
   bool show_debug = false;
   std::string lat_control;
-
-  bool show_gear = false; //boxkon
-  bool show_turnsignal = false; //boxkon
-  bool show_engrpm = false;  //tenesi
 
 signals:
   void uiUpdate(const UIState &s);
