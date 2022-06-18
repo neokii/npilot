@@ -231,7 +231,7 @@ class nTune():
       updated = True
     if self.checkValue("kd", 0.0, 2.0, 1.0):
       updated = True
-    if self.checkValue("angle_deadzone", 0.0, 3.0, 0.5):
+    if self.checkValue("angle_deadzone_v2", 0.0, 2.0, 0.0):
       updated = True
 
     return updated
@@ -280,7 +280,7 @@ class nTune():
       torque.pid._k_i = [[0], [self.config["ki_factor"] / max_lat_accel]]
       torque.pid._k_d = [[0], [float(self.config["kd"])]]
       torque.friction = float(self.config["friction"])
-      torque.steeringAngleDeadzoneDeg = float(self.config["angle_deadzone"])
+      torque.steering_angle_deadzone_deg = float(self.config["angle_deadzone_v2"])
       torque.reset()
 
   def read_cp(self):
@@ -299,7 +299,7 @@ class nTune():
           self.config["maxLatAccel"] = round(1. / self.CP.lateralTuning.torque.kp, 2)
           self.config["friction"] = round(self.CP.lateralTuning.torque.friction, 3)
           self.config["kd"] = round(self.CP.lateralTuning.torque.kd, 2)
-          self.config["angle_deadzone"] = round(self.CP.lateralTuning.torque.steeringAngleDeadzoneDeg, 1)
+          self.config["angle_deadzone_v2"] = round(self.CP.lateralTuning.torque.steeringAngleDeadzoneDeg, 1)
         else:
           self.config["useLiveSteerRatio"] = 1.
           self.config["steerRatio"] = round(self.CP.steerRatio, 2)
