@@ -158,7 +158,7 @@ void ScreenRecoder::encoding_thread_func() {
             dst_width, dst_height,
             libyuv::kFilterLinear);
 
-      encoder->encode_frame_rgba(rgb_scale_buffer.get(), dst_width, dst_height, ((uint64_t)nanos_since_boot() - start_time )));
+      encoder->encode_frame_rgba(rgb_scale_buffer.get(), dst_width, dst_height, ((uint64_t)nanos_since_boot() - start_time ));
     }
   }
 }
