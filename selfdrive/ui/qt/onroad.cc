@@ -479,12 +479,11 @@ void NvgWindow::drawHud(QPainter &p, const cereal::ModelDataV2::Reader &model) {
   int scc_bus = car_params.getSccBus();
 
   QString infoText;
-  infoText.sprintf("%s AO(%.2f/%.2f) SR(%.2f) SRC(%.2f) SAD(%.2f) BUS(MDPS %d, SCC %d) SCC(%.2f/%.2f/%.2f)",
+  infoText.sprintf("%s AO(%.2f/%.2f) SR(%.2f) SAD(%.2f) BUS(MDPS %d, SCC %d) SCC(%.2f/%.2f/%.2f)",
                       s->lat_control.c_str(),
                       live_params.getAngleOffsetDeg(),
                       live_params.getAngleOffsetAverageDeg(),
                       controls_state.getSteerRatio(),
-                      controls_state.getSteerRateCost(),
                       controls_state.getSteerActuatorDelay(),
                       mdps_bus, scc_bus,
                       controls_state.getSccGasFactor(),

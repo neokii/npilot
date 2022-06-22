@@ -7,7 +7,7 @@
 #include <sys/time.h>
 
 #include "libyuv.h"
-#include "selfdrive/camerad/transforms/rgb_to_yuv.h"
+#include "system/camerad/transforms/rgb_to_yuv.h"
 #include "common/clutil.h"
 
 #include "selfdrive/ui/qt/screenrecorder/screenrecorder.h"

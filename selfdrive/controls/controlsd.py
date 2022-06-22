@@ -107,6 +107,9 @@ class Controls:
     if not self.disengage_on_accelerator:
       self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.DISABLE_DISENGAGE_ON_GAS
 
+    if self.CP.dashcamOnly and params.get_bool("DashcamOverride"):
+      self.CP.dashcamOnly = False
+
     # read params
     self.is_metric = params.get_bool("IsMetric")
     self.is_ldw_enabled = params.get_bool("IsLdwEnabled")
@@ -789,7 +792,6 @@ class Controls:
     controlsState.sccStockCamStatus = self.sccStockCamStatus
 
     controlsState.steerRatio = self.VM.sR
-    controlsState.steerRateCost = ntune_common_get('steerRateCost')
     controlsState.steerActuatorDelay = ntune_common_get('steerActuatorDelay')
 
     controlsState.sccGasFactor = ntune_scc_get('sccGasFactor')
