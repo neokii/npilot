@@ -8,16 +8,19 @@ class CarControllerParams:
   ACCEL_MIN = -3.5
 
   def __init__(self, CP):
-    if CP.carFingerprint in HDA2_CAR:
-      self.STEER_MAX = 150
-    else:
-      self.STEER_MAX = 409
-
+    self.STEER_MAX = 409
     self.STEER_DELTA_UP = 3
     self.STEER_DELTA_DOWN = 6
     self.STEER_DRIVER_ALLOWANCE = 50
     self.STEER_DRIVER_MULTIPLIER = 2
     self.STEER_DRIVER_FACTOR = 1
+    self.STEER_THRESHOLD = 150
+
+    if CP.carFingerprint in HDA2_CAR:
+      self.STEER_MAX = 270
+      self.STEER_DRIVER_ALLOWANCE = 250
+      self.STEER_DRIVER_MULTIPLIER = 2
+      self.STEER_THRESHOLD = 250
 
 class CAR:
   # genesis
