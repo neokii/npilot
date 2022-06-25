@@ -24,16 +24,6 @@ from selfdrive.controls.lib.latcontrol_pid import ERROR_RATE_FRAME
 FRICTION_THRESHOLD = 0.2
 
 
-def set_torque_tune(tune, MAX_LAT_ACCEL=2.5, FRICTION=0.01, steering_angle_deadzone_deg=0.0):
-  tune.init('torque')
-  tune.torque.useSteeringAngle = True
-  tune.torque.kp = 1.0 / MAX_LAT_ACCEL
-  tune.torque.kf = 1.0 / MAX_LAT_ACCEL
-  tune.torque.ki = 0.1 / MAX_LAT_ACCEL
-  tune.torque.friction = FRICTION
-  tune.torque.steeringAngleDeadzoneDeg = steering_angle_deadzone_deg
-
-
 class LatControlTorque(LatControl):
   def __init__(self, CP, CI):
     super().__init__(CP, CI)
