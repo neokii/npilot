@@ -79,6 +79,8 @@ void OnroadWindow::updateState(const UIState &s) {
     alerts->updateAlert(alert, bgColor);
   }
 
+  nvg->updateState(s);
+
   if (bg != bgColor) {
     // repaint border
     bg = bgColor;
@@ -260,23 +262,30 @@ void NvgWindow::initializeGL() {
   ic_satellite = QPixmap("../assets/images/satellite.png");
 }
 
-void NvgWindow::updateFrameMat(int w, int h) {
-  CameraViewWidget::updateFrameMat(w, h);
+void NvgWindow::updateState(const UIState &s) {
 
+  if (s.scene.calibration_valid) {
+    CameraViewWidget::updateCalibration(s.scene.view_from_calib);
+  } else {
+    CameraViewWidget::updateCalibration(DEFAULT_CALIBRATION);
+  }
+
+}
+
+void NvgWindow::updateFrameMat() {
+  CameraViewWidget::updateFrameMat();
   UIState *s = uiState();
+  int w = width(), h = height();
+
   s->fb_w = w;
   s->fb_h = h;
-  auto intrinsic_matrix = s->wide_camera ? ecam_intrinsic_matrix : fcam_intrinsic_matrix;
-  float zoom = ZOOM / intrinsic_matrix.v[0];
-  if (s->wide_camera) {
-    zoom *= 0.5;
-  }
+
   // Apply transformation such that video pixel coordinates match video
   // 1) Put (0, 0) in the middle of the video
   // 2) Apply same scaling as video
   // 3) Put (0, 0) in top left corner of video
   s->car_space_transform.reset();
-  s->car_space_transform.translate(w / 2, h / 2 + y_offset)
+  s->car_space_transform.translate(w / 2 - x_offset, h / 2 - y_offset)
       .scale(zoom, zoom)
       .translate(-intrinsic_matrix.v[2], -intrinsic_matrix.v[5]);
 }
@@ -362,7 +371,6 @@ void NvgWindow::paintGL() {
 }
 
 void NvgWindow::paintEvent(QPaintEvent *event) {
-
 
   UIState *s = uiState();
   const cereal::ModelDataV2::Reader &model = (*s->sm)["modelV2"].getModelV2();
