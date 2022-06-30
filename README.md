@@ -3,7 +3,7 @@
 콤마2/이온 은 hkg_0814_c2 브랜치를 이용하세요.**
 
 **This branch is comma3 only.
-For comma2/eon, use hkg_0814_c2 branch.**
+For comma2/eon, use hkg_0814_c2.**
 
 
 **This is based on xx979xx for Hyundai, Kia, Genesis.**
