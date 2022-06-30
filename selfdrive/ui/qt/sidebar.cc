@@ -57,14 +57,16 @@ void Sidebar::updateState(const UIState &s) {
   setProperty("netStrength", strength > 0 ? strength + 1 : 0);
   setProperty("wifiAddr", deviceState.getWifiIpAddress().cStr());
 
-  ItemStatus connectStatus;
-  auto last_ping = deviceState.getLastAthenaPingTime();
-  if (last_ping == 0) {
-    connectStatus = params.getBool("PrimeRedirected") ? ItemStatus{"NO\nPRIME", danger_color} : ItemStatus{"CONNECT\nOFFLINE", warning_color};
-  } else {
-    connectStatus = nanos_since_boot() - last_ping < 80e9 ? ItemStatus{"CONNECT\nONLINE", good_color} : ItemStatus{"CONNECT\nERROR", danger_color};
-  }
-  setProperty("connectStatus", QVariant::fromValue(connectStatus));
+  int batteryPercent = deviceState.getBatteryPercent();
+  QColor batteryColor = good_color;
+  if(batteryPercent < 30)
+    batteryColor = warning_color;
+  else if(batteryPercent < 10)
+    batteryColor = danger_color;
+
+  QString batteryDesc;
+  batteryDesc.sprintf("%d%%\nBATTERY", batteryPercent);
+  setProperty("batteryPercent", QVariant::fromValue(ItemStatus{batteryDesc, batteryColor}));
 
   ItemStatus tempStatus = {"TEMP\nHIGH", danger_color};
   auto ts = deviceState.getThermalStatus();
@@ -120,5 +122,5 @@ void Sidebar::paintEvent(QPaintEvent *event) {
   configFont(p, "Open Sans", 35, "Regular");
   drawMetric(p, temp_status.first, temp_status.second, 338);
   drawMetric(p, panda_status.first, panda_status.second, 496);
-  drawMetric(p, connect_status.first, connect_status.second, 654);
+  drawMetric(p, battery_percent.first, battery_percent.second, 654);
 }

@@ -922,17 +922,33 @@ void NvgWindow::drawThermal(QPainter &p) {
 
   int w = 192;
   int x = width() - (30 + w);
-  int y = 450;
+  int y = 330;
 
   QString str;
   QRect rect;
 
   configFont(p, "Open Sans", 50, "Bold");
-  str.sprintf("%.0f°C", cpuTemp);
+  str.sprintf("%d%%", deviceState.getBatteryPercent());
   rect = QRect(x, y, w, w);
 
   int r = interp<float>(cpuTemp, {50.f, 90.f}, {200.f, 255.f}, false);
   int g = interp<float>(cpuTemp, {50.f, 90.f}, {255.f, 200.f}, false);
+  p.setPen(QColor(r, g, 200, 200));
+  p.drawText(rect, Qt::AlignCenter, str);
+
+  y += 55;
+  configFont(p, "Open Sans", 25, "Bold");
+  rect = QRect(x, y, w, w);
+  p.setPen(QColor(255, 255, 255, 200));
+  p.drawText(rect, Qt::AlignCenter, "BAT.L");
+
+  y += 80;
+  configFont(p, "Open Sans", 50, "Bold");
+  str.sprintf("%.0f°C", cpuTemp);
+  rect = QRect(x, y, w, w);
+
+  r = interp<float>(cpuTemp, {50.f, 90.f}, {200.f, 255.f}, false);
+  g = interp<float>(cpuTemp, {50.f, 90.f}, {255.f, 200.f}, false);
   p.setPen(QColor(r, g, 200, 200));
   p.drawText(rect, Qt::AlignCenter, str);
 
