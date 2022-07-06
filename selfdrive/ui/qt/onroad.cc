@@ -1025,17 +1025,17 @@ void NvgWindow::drawRestAreaItem(QPainter &p, int yPos, capnp::Text::Reader imag
   p.save();
 
   int mx = 20;
-  int my = 5;
+  int my = 10;
 
-  int box_width = Hardware::TICI() ? 580 : 510;
+  int box_width = Hardware::TICI() ? 590 : 520;
   int box_height = 200;
 
   int icon_size = 70;
 
-  //QRect rc(30, 30, 184, 202); // MAX box
-  QRect rc(184+30+30, 30 + yPos, box_width, box_height);
+  //QRect rc(30, 30, 210, 202); // MAX box
+  QRect rc(204+60, 30 + yPos, box_width, box_height);
   p.setBrush(QColor(0, 0, 0, 100));
-  p.drawRoundedRect(rc, 5, 5);
+  p.drawRoundedRect(rc, 20, 20);
 
   if(lastItem)
     p.setPen(QColor(255, 255, 255, 200));
@@ -1045,21 +1045,21 @@ void NvgWindow::drawRestAreaItem(QPainter &p, int yPos, capnp::Text::Reader imag
   int x = rc.left() + mx;
   int y = rc.top() + my;
 
-  configFont(p, "Inter", 60, "Bold");
-  p.drawText(x, y+60+5, title.cStr());
+  configFont(p, "Open Sans", 60, "Bold");
+  p.drawText(x, y+60+10, title.cStr());
 
   QPixmap icon = get_icon_iol_com(image.cStr());
-  p.drawPixmap(x, y + box_height/2 + 5, icon_size, icon_size, icon);
+  p.drawPixmap(x, y + box_height/2, icon_size, icon_size, icon);
 
-  configFont(p, "Inter", 50, "Bold");
-  p.drawText(x + icon_size + 15, y + box_height/2 + 50 + 5, oilPrice.cStr());
+  configFont(p, "Open Sans", 50, "Bold");
+  p.drawText(x + icon_size + 15, y + box_height/2 + 50, oilPrice.cStr());
 
-  configFont(p, "Inter", 60, "Bold");
+  configFont(p, "Open Sans", 60, "Bold");
 
   QFontMetrics fm(p.font());
   QRect rect = fm.boundingRect(distance.cStr());
 
-  p.drawText(rc.left()+rc.width()-rect.width()-mx-5, y + box_height/2 + 60, distance.cStr());
+  p.drawText(rc.left()+rc.width()-rect.width()-mx-5, y + box_height/2 + 55, distance.cStr());
 
   p.restore();
 }
