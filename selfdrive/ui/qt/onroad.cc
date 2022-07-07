@@ -717,6 +717,8 @@ void NvgWindow::drawMaxSpeed(QPainter &p) {
   const int corner_radius = 32;
   int max_speed_height = 210;
 
+  QColor bgColor = QColor(0, 0, 0, 166);
+
   {
     // draw board
     QPainterPath path;
@@ -740,7 +742,7 @@ void NvgWindow::drawMaxSpeed(QPainter &p) {
     }
 
     p.setPen(Qt::NoPen);
-    p.fillPath(path.simplified(), QColor(0, 0, 0, 166));
+    p.fillPath(path.simplified(), bgColor);
   }
 
   QString str;
@@ -816,6 +818,37 @@ void NvgWindow::drawMaxSpeed(QPainter &p) {
     text_rect.moveCenter({b_rect.center().x(), 0});
     text_rect.moveTop(b_rect.top() + (b_rect.height() - text_rect.height()) / 2);
     p.drawText(text_rect, Qt::AlignCenter, str);
+
+    // left dist
+    QRect rcLeftDist;
+    QString strLeftDist;
+
+    if(left_dist < 1000)
+      strLeftDist.sprintf("%dm", left_dist);
+    else
+      strLeftDist.sprintf("%.1fkm", left_dist / 1000.f);
+
+    QFont font("Inter");
+    font.setPixelSize(55);
+    font.setStyleName("Bold");
+
+    QFontMetrics fm(font);
+    int width = fm.width(strLeftDist);
+
+    padding = 10;
+
+    int center_x = x_start + board_width / 2;
+    rcLeftDist.setRect(center_x - width / 2, y_start+board_height+15, width, font.pixelSize()+10);
+    rcLeftDist.adjust(-padding*2, -padding, padding*2, padding);
+
+    p.setPen(Qt::NoPen);
+    p.setBrush(bgColor);
+    p.drawRoundedRect(rcLeftDist, 20, 20);
+
+    configFont(p, "Inter", 55, "Bold");
+    p.setBrush(Qt::NoBrush);
+    p.setPen(QColor(255, 255, 255, 230));
+    p.drawText(rcLeftDist, Qt::AlignCenter|Qt::AlignVCenter, strLeftDist);
   }
   else if(roadLimitSpeed > 0 && roadLimitSpeed < 200) {
     QRectF board_rect = QRectF(x_start, y_start+max_speed_height, board_width, board_height-max_speed_height);
