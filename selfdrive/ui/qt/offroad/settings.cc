@@ -65,7 +65,7 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
     },
     {
       "EndToEndToggle",
-      tr("\U0001f96c Disable use of lanelines \U0001f96c"),
+      tr("Disable use of lanelines"),
       tr("In this mode openpilot will ignore lanelines and just drive how it thinks a human would."),
       "../assets/offroad/icon_road.png",
     },
@@ -573,7 +573,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
 
   QList<ParamControl*> toggles;
 
-  toggles.append(new ParamControl(tr("UseClusterSpeed"),
+  toggles.append(new ParamControl("UseClusterSpeed",
                                             tr("Use Cluster Speed"),
                                             tr("Use cluster speed instead of wheel speed."),
                                             "../assets/offroad/icon_road.png",
@@ -581,12 +581,12 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
 
   toggles.append(new ParamControl("LongControlEnabled",
                                             tr("Enable HKG Long Control"),
-                                            tr("warnings: it is beta, be careful!! Openpilot will control the speed of your car"),
+                                            tr("Openpilot will control the speed of your car"),
                                             "../assets/offroad/icon_road.png",
                                             this));
 
   toggles.append(new ParamControl("IsLdwsCar",
-                                            tr("LDWS"),
+                                            tr("LDWS only"),
                                             tr("If your car only supports LDWS, turn it on."),
                                             "../assets/offroad/icon_openpilot.png",
                                             this));
@@ -599,12 +599,12 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
 
   toggles.append(new ParamControl("AutoLaneChangeEnabled",
                                             tr("Enable Auto Lane Change(Nudgeless)"),
-                                            tr("warnings: it is beta, be careful!!"),
+                                            tr("Automatically changes lanes at turn signal."),
                                             "../assets/offroad/icon_road.png",
                                             this));
 
   toggles.append(new ParamControl("SccSmootherSlowOnCurves",
-                                            tr("Enable Slow On Curves"),
+                                            tr("Enable slow on curves"),
                                             "",
                                             "../assets/offroad/icon_road.png",
                                             this));
@@ -650,12 +650,6 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
                                             "../assets/offroad/icon_shell.png",
                                             this));
 
-  /*toggles.append(new ParamControl("CustomLeadMark",
-                                            tr("Use custom lead mark"),
-                                            "",
-                                            "../assets/offroad/icon_road.png",
-                                            this));*/
-
   for(ParamControl *toggle : toggles) {
     if(main_layout->count() != 0) {
       toggleLayout->addWidget(horizontal_line());
@@ -671,7 +665,7 @@ SelectCar::SelectCar(QWidget* parent): QWidget(parent) {
   main_layout->setSpacing(20);
 
   // Back button
-  QPushButton* back = new QPushButton("Back");
+  QPushButton* back = new QPushButton(tr("Back"));
   back->setObjectName("back_btn");
   back->setFixedSize(500, 100);
   connect(back, &QPushButton::clicked, [=]() { emit backPress(); });
@@ -683,7 +677,7 @@ SelectCar::SelectCar(QWidget* parent): QWidget(parent) {
   QScroller::grabGesture(list->viewport(), QScroller::LeftMouseButtonGesture);
   list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
-  list->addItem("[ Not selected ]");
+  list->addItem(tr("[ Not selected ]"));
 
   QStringList items = get_list("/data/params/d/SupportedCars");
   list->addItems(items);
@@ -721,7 +715,7 @@ LateralControl::LateralControl(QWidget* parent): QWidget(parent) {
   main_layout->setSpacing(20);
 
   // Back button
-  QPushButton* back = new QPushButton("Back");
+  QPushButton* back = new QPushButton(tr("Back"));
   back->setObjectName("back_btn");
   back->setFixedSize(500, 100);
   connect(back, &QPushButton::clicked, [=]() { emit backPress(); });
