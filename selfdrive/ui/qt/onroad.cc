@@ -1078,16 +1078,16 @@ void NvgWindow::drawRestAreaItem(QPainter &p, int yPos, capnp::Text::Reader imag
   int x = rc.left() + mx;
   int y = rc.top() + my;
 
-  configFont(p, "Open Sans", 60, "Bold");
+  configFont(p, "Inter", 60, "Bold");
   p.drawText(x, y+60+10, title.cStr());
 
   QPixmap icon = get_icon_iol_com(image.cStr());
   p.drawPixmap(x, y + box_height/2, icon_size, icon_size, icon);
 
-  configFont(p, "Open Sans", 50, "Bold");
+  configFont(p, "Inter", 50, "Bold");
   p.drawText(x + icon_size + 15, y + box_height/2 + 50, oilPrice.cStr());
 
-  configFont(p, "Open Sans", 60, "Bold");
+  configFont(p, "Inter", 60, "Bold");
 
   QFontMetrics fm(p.font());
   QRect rect = fm.boundingRect(distance.cStr());
