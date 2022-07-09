@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
-import os
 import json
+import os
 
 BASEDIR = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../"))
 
