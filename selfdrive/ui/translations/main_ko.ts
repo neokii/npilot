@@ -240,7 +240,7 @@
     <message>
         <location filename="../qt/offroad/settings.cc" line="133"/>
         <source>Are you sure you want to reset calibration and live params?</source>
-        <translation>캘르브레이션과 Live Params(AngleOffset, SteerRatio등)이 재설정(초기화)됩니다. 진행할까요?</translation>
+        <translation>캘리브레이션과 라이브 파라미터(AngleOffset, SteerRatio등)이 재설정(초기화)됩니다. 진행할까요?</translation>
     </message>
     <message>
         <location filename="../qt/offroad/settings.cc" line="147"/>
