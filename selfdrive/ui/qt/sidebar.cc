@@ -20,7 +20,7 @@ void Sidebar::drawMetric(QPainter &p, const QPair<QString, QString> &label, QCol
   p.drawRoundedRect(rect, 20, 20);
 
   p.setPen(QColor(0xff, 0xff, 0xff));
-  configFont(p, "Inter", 35, "SemiBold");
+  configFont(p, "Inter", 40, "SemiBold");
 
   QRect label_rect = getTextRect(p, Qt::AlignCenter, label.first);
   label_rect.setWidth(218);
