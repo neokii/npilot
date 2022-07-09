@@ -175,7 +175,7 @@ void MapWindow::updateState(const UIState &s) {
 
   loaded_once = loaded_once || m_map->isFullyLoaded();
   if (!loaded_once) {
-    map_instructions->showError("Map Loading");
+    map_instructions->showError(tr("Map Loading"));
     return;
   }
 
@@ -192,7 +192,7 @@ void MapWindow::updateState(const UIState &s) {
     carPosSource["data"] = QVariant::fromValue<QMapbox::Feature>(feature1);
     m_map->updateSource("carPosSource", carPosSource);
   } else {
-    map_instructions->showError("Waiting for GPS");
+    map_instructions->showError(tr("Waiting for GPS"));
   }
 
   if (pan_counter == 0) {
@@ -615,7 +615,7 @@ void MapETA::updateETA(float s, float s_typical, float d) {
   auto eta_time = QDateTime::currentDateTime().addSecs(s).time();
   if (params.getBool("NavSettingTime24h")) {
     eta->setText(eta_time.toString("HH:mm"));
-    eta_unit->setText("eta");
+    eta_unit->setText(tr("eta"));
   } else {
     auto t = eta_time.toString("h:mm a").split(' ');
     eta->setText(t[0]);
@@ -625,11 +625,11 @@ void MapETA::updateETA(float s, float s_typical, float d) {
   // Remaining time
   if (s < 3600) {
     time->setText(QString::number(int(s / 60)));
-    time_unit->setText("min");
+    time_unit->setText(tr("min"));
   } else {
     int hours = int(s) / 3600;
     time->setText(QString::number(hours) + ":" + QString::number(int((s - hours * 3600) / 60)).rightJustified(2, '0'));
-    time_unit->setText("hr");
+    time_unit->setText(tr("hr"));
   }
 
   QString color;

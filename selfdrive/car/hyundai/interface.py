@@ -301,13 +301,7 @@ class CarInterface(CarInterfaceBase):
       tire_stiffness_factor = 0.65
 
       if ret.lateralTuning.which() == 'torque':
-        ret.lateralTuning.torque.useSteeringAngle = True
-        max_lat_accel = 2.5
-        ret.lateralTuning.torque.kp = 1.0 / max_lat_accel
-        ret.lateralTuning.torque.kf = 1.0 / max_lat_accel
-        ret.lateralTuning.torque.ki = 0.1 / max_lat_accel
-        ret.lateralTuning.torque.friction = 0.0
-        ret.lateralTuning.torque.kd = 0.0
+        torque_tune(ret.lateralTuning, 3.5, 0.01)
 
 
     ret.radarTimeStep = 0.05
