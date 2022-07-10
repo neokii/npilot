@@ -7,7 +7,6 @@ from enum import Enum
 import numpy as np
 
 CONF_PATH = '/data/ntune/'
-CONF_LAT_LQR_FILE = '/data/ntune/lat_lqr.json'
 CONF_LAT_INDI_FILE = '/data/ntune/lat_indi.json'
 CONF_LAT_TORQUE_FILE = '/data/ntune/lat_torque_v4.json'
 
@@ -22,9 +21,8 @@ def file_watch_handler(signum, frame):
 
 class LatType(Enum):
   NONE = 0
-  LQR = 1
-  INDI = 2
-  TORQUE = 3
+  INDI = 1
+  TORQUE = 2
 
 
 class nTune():
@@ -48,15 +46,7 @@ class nTune():
     self.key = str(self)
     self.disable_lateral_live_tuning = CP.disableLateralLiveTuning if CP is not None else False
 
-    if "LatControlLQR" in str(type(ctrl)):
-      self.type = LatType.LQR
-      self.file = CONF_LAT_LQR_FILE
-      ctrl.A = np.array([0., 1., -0.22619643, 1.21822268]).reshape((2, 2))
-      ctrl.B = np.array([-1.92006585e-04, 3.95603032e-05]).reshape((2, 1))
-      ctrl.C = np.array([1., 0.]).reshape((1, 2))
-      ctrl.K = np.array([-110., 451.]).reshape((1, 2))
-      ctrl.L = np.array([0.33, 0.318]).reshape((2, 1))
-    elif "LatControlTorque" in str(type(ctrl)):
+    if "LatControlTorque" in str(type(ctrl)):
       self.type = LatType.TORQUE
       self.file = CONF_LAT_TORQUE_FILE
     elif "LatControlINDI" in str(type(ctrl)):
@@ -96,7 +86,7 @@ class nTune():
     except:
       pass
 
-  def check(self):  # called by LatControlLQR.update
+  def check(self):
     if self.invalidated:
       self.invalidated = False
       self.update()
@@ -144,9 +134,7 @@ class nTune():
 
   def checkValid(self):
 
-    if self.type == LatType.LQR:
-      return self.checkValidLQR()
-    elif self.type == LatType.INDI:
+    if self.type == LatType.INDI:
       return self.checkValidIndi()
     elif self.type == LatType.TORQUE:
       return self.checkValidTorque()
@@ -160,9 +148,7 @@ class nTune():
     if self.disable_lateral_live_tuning:
       return
 
-    if self.type == LatType.LQR:
-      self.updateLQR()
-    elif self.type == LatType.INDI:
+    if self.type == LatType.INDI:
       self.updateIndi()
     elif self.type == LatType.TORQUE:
       self.updateTorque()
@@ -180,23 +166,6 @@ class nTune():
       updated = True
 
     if self.checkValue("pathOffset", -1.0, 1.0, 0.0):
-      updated = True
-
-    return updated
-
-  def checkValidLQR(self):
-    updated = False
-
-    if self.checkValue("scale", 500.0, 5000.0, 1600.0):
-      updated = True
-
-    if self.checkValue("ki", 0.0, 0.2, 0.01):
-      updated = True
-
-    if self.checkValue("dcGain", 0.002, 0.004, 0.0025):
-      updated = True
-
-    if self.checkValue("steerLimitTimer", 0.5, 3.0, 2.5):
       updated = True
 
     return updated
@@ -247,16 +216,6 @@ class nTune():
 
     return updated
 
-  def updateLQR(self):
-    lqr = self.get_ctrl()
-    if lqr is not None:
-      lqr.scale = float(self.config["scale"])
-      lqr.ki = float(self.config["ki"])
-      lqr.dc_gain = float(self.config["dcGain"])
-
-      lqr.x_hat = np.array([[0], [0]])
-      lqr.reset()
-
   def updateIndi(self):
     indi = self.get_ctrl()
     if indi is not None:
@@ -285,11 +244,7 @@ class nTune():
     try:
       if self.CP is not None:
 
-        if self.type == LatType.LQR:
-          self.config["scale"] = round(self.CP.lateralTuning.lqr.scale, 2)
-          self.config["ki"] = round(self.CP.lateralTuning.lqr.ki, 3)
-          self.config["dcGain"] = round(self.CP.lateralTuning.lqr.dcGain, 6)
-        elif self.type == LatType.INDI:
+        if self.type == LatType.INDI:
           pass
         elif self.type == LatType.TORQUE:
           self.config["useSteeringAngle"] = 1. if self.CP.lateralTuning.torque.useSteeringAngle else 0.
