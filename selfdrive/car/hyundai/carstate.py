@@ -1,4 +1,5 @@
 import copy
+from collections import deque
 
 from cereal import car
 from common.numpy_fast import interp
@@ -10,6 +11,8 @@ from opendbc.can.can_define import CANDefine
 from common.conversions import Conversions as CV
 from common.params import Params
 
+PREV_BUTTON_SAMPLES = 8
+
 GearShifter = car.CarState.GearShifter
 
 
@@ -18,6 +21,9 @@ class CarState(CarStateBase):
     super().__init__(CP)
 
     can_define = CANDefine(DBC[CP.carFingerprint]["pt"])
+
+    self.cruise_buttons = deque([Buttons.NONE] * PREV_BUTTON_SAMPLES, maxlen=PREV_BUTTON_SAMPLES)
+    self.main_buttons = deque([Buttons.NONE] * PREV_BUTTON_SAMPLES, maxlen=PREV_BUTTON_SAMPLES)
 
     if CP.carFingerprint in HDA2_CAR:
       self.shifter_values = can_define.dv["ACCELERATOR"]["GEAR"]
@@ -38,7 +44,6 @@ class CarState(CarStateBase):
     self.has_lfa_hda = CP.hasLfaHda
     self.leftBlinker = False
     self.rightBlinker = False
-    self.cruise_main_button = 0
     self.mdps_error_cnt = 0
     self.cruise_unavail_cnt = 0
 
@@ -67,8 +72,6 @@ class CarState(CarStateBase):
     cp_sas = cp2 if self.sas_bus else cp
     cp_scc = cp2 if self.scc_bus == 1 else cp_cam if self.scc_bus == 2 else cp
 
-    self.prev_cruise_buttons = self.cruise_buttons
-    self.prev_cruise_main_button = self.cruise_main_button
     self.prev_left_blinker = self.leftBlinker
     self.prev_right_blinker = self.rightBlinker
 
@@ -150,8 +153,11 @@ class CarState(CarStateBase):
                                          cp.vl["LVR12"]["CF_Lvr_CruiseSet"] * self.speed_conv_to_ms
     else:
       ret.cruiseState.speed = 0
-    self.cruise_main_button = cp.vl["CLU11"]["CF_Clu_CruiseSwMain"]
-    self.cruise_buttons = cp.vl["CLU11"]["CF_Clu_CruiseSwState"]
+
+    self.prev_cruise_buttons = self.cruise_buttons[-1]
+    self.prev_main_button = self.main_buttons[-1]
+    self.cruise_buttons.extend(cp.vl_all["CLU11"]["CF_Clu_CruiseSwState"])
+    self.main_buttons.extend(cp.vl_all["CLU11"]["CF_Clu_CruiseSwMain"])
 
     # TODO: Find brake pressure
     ret.brake = 0
@@ -279,7 +285,10 @@ class CarState(CarStateBase):
     speed_factor = CV.MPH_TO_MS if cp.vl["CLUSTER_INFO"]["DISTANCE_UNIT"] == 1 else CV.KPH_TO_MS
     ret.cruiseState.speed = cp.vl["CRUISE_INFO"]["SET_SPEED"] * speed_factor
 
-    self.buttons_counter = cp.vl["CRUISE_BUTTONS"]["_COUNTER"]
+    self.cruise_buttons.extend(cp.vl_all["CRUISE_BUTTONS"]["CRUISE_BUTTONS"])
+    self.main_buttons.extend(cp.vl_all["CRUISE_BUTTONS"]["ADAPTIVE_CRUISE_MAIN_BTN"])
+    self.buttons_counter = cp.vl["CRUISE_BUTTONS"]["COUNTER"]
+
     self.cam_0x2a4 = copy.copy(cp_cam.vl["CAM_0x2a4"])
     return ret
 

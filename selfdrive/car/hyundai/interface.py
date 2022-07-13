@@ -366,10 +366,10 @@ class CarInterface(CarInterfaceBase):
       self.low_speed_alert = False
 
     buttonEvents = []
-    if self.CS.cruise_buttons != self.CS.prev_cruise_buttons:
+    if self.CS.cruise_buttons[-1] != self.CS.prev_cruise_buttons:
       be = car.CarState.ButtonEvent.new_message()
-      be.pressed = self.CS.cruise_buttons != 0
-      but = self.CS.cruise_buttons if be.pressed else self.CS.prev_cruise_buttons
+      be.pressed = self.CS.cruise_buttons[-1] != 0
+      but = self.CS.cruise_buttons[-1] if be.pressed else self.CS.prev_cruise_buttons
       if but == Buttons.RES_ACCEL:
         be.type = ButtonType.accelCruise
       elif but == Buttons.SET_DECEL:
@@ -381,10 +381,10 @@ class CarInterface(CarInterfaceBase):
       else:
         be.type = ButtonType.unknown
       buttonEvents.append(be)
-    if self.CS.cruise_main_button != self.CS.prev_cruise_main_button:
+    if self.CS.main_button[-1] != self.CS.prev_main_button:
       be = car.CarState.ButtonEvent.new_message()
       be.type = ButtonType.altButton3
-      be.pressed = bool(self.CS.cruise_main_button)
+      be.pressed = bool(self.CS.main_button[-1])
       buttonEvents.append(be)
     ret.buttonEvents = buttonEvents
 
