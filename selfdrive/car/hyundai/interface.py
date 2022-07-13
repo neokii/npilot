@@ -381,10 +381,10 @@ class CarInterface(CarInterfaceBase):
       else:
         be.type = ButtonType.unknown
       buttonEvents.append(be)
-    if self.CS.main_button[-1] != self.CS.prev_main_button:
+    if self.CS.main_buttons[-1] != self.CS.prev_main_button:
       be = car.CarState.ButtonEvent.new_message()
       be.type = ButtonType.altButton3
-      be.pressed = bool(self.CS.main_button[-1])
+      be.pressed = bool(self.CS.main_buttons[-1])
       buttonEvents.append(be)
     ret.buttonEvents = buttonEvents
 
