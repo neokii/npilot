@@ -79,7 +79,7 @@ protected:
   void drawSpeed(QPainter &p);
   void drawBottomIcons(QPainter &p);
   void drawSteer(QPainter &p);
-  void drawThermal(QPainter &p);
+  void drawDeviceState(QPainter &p);
   void drawRestArea(QPainter &p);
   void drawTurnSignals(QPainter &p);
   void drawGpsStatus(QPainter &p);
