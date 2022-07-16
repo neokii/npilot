@@ -464,17 +464,17 @@ openpilot은 계속해서 캘리브레이션을 수행합니다.
 <context>
     <name>MapETA</name>
     <message>
-        <location filename="../qt/maps/map.cc" line="618"/>
+        <location filename="../qt/maps/map.cc" line="622"/>
         <source>eta</source>
         <translation>예상도착시간</translation>
     </message>
     <message>
-        <location filename="../qt/maps/map.cc" line="628"/>
+        <location filename="../qt/maps/map.cc" line="632"/>
         <source>min</source>
         <translation>분</translation>
     </message>
     <message>
-        <location filename="../qt/maps/map.cc" line="632"/>
+        <location filename="../qt/maps/map.cc" line="636"/>
         <source>hr</source>
         <translation>시간</translation>
     </message>
@@ -820,71 +820,71 @@ location set</source>
 <context>
     <name>Sidebar</name>
     <message>
-        <location filename="../qt/sidebar.cc" line="68"/>
-        <location filename="../qt/sidebar.cc" line="70"/>
         <source>CONNECT</source>
-        <translation>연결</translation>
+        <translation type="vanished">연결</translation>
     </message>
     <message>
-        <location filename="../qt/sidebar.cc" line="68"/>
         <source>OFFLINE</source>
-        <translation>오프라인</translation>
+        <translation type="vanished">오프라인</translation>
     </message>
     <message>
-        <location filename="../qt/sidebar.cc" line="70"/>
-        <location filename="../qt/sidebar.cc" line="83"/>
+        <location filename="../qt/sidebar.cc" line="85"/>
         <source>ONLINE</source>
         <translation>온라인</translation>
     </message>
     <message>
-        <location filename="../qt/sidebar.cc" line="70"/>
         <source>ERROR</source>
-        <translation>에러</translation>
+        <translation type="vanished">에러</translation>
     </message>
     <message>
         <location filename="../qt/sidebar.cc" line="74"/>
-        <location filename="../qt/sidebar.cc" line="77"/>
+        <source>FREE</source>
+        <translation>저장공간</translation>
+    </message>
+    <message>
+        <location filename="../qt/sidebar.cc" line="76"/>
         <location filename="../qt/sidebar.cc" line="79"/>
+        <location filename="../qt/sidebar.cc" line="81"/>
         <source>TEMP</source>
         <translation>온도</translation>
     </message>
     <message>
-        <location filename="../qt/sidebar.cc" line="74"/>
+        <location filename="../qt/sidebar.cc" line="76"/>
         <source>HIGH</source>
         <translation>높음</translation>
     </message>
     <message>
-        <location filename="../qt/sidebar.cc" line="77"/>
+        <location filename="../qt/sidebar.cc" line="79"/>
         <source>GOOD</source>
         <translation>좋음</translation>
     </message>
     <message>
-        <location filename="../qt/sidebar.cc" line="79"/>
+        <location filename="../qt/sidebar.cc" line="81"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../qt/sidebar.cc" line="83"/>
+        <location filename="../qt/sidebar.cc" line="85"/>
         <source>VEHICLE</source>
         <translation>차량</translation>
     </message>
     <message>
-        <location filename="../qt/sidebar.cc" line="85"/>
+        <location filename="../qt/sidebar.cc" line="87"/>
         <source>NO</source>
         <translation>NO</translation>
     </message>
     <message>
-        <location filename="../qt/sidebar.cc" line="85"/>
+        <location filename="../qt/sidebar.cc" line="87"/>
         <source>PANDA</source>
         <translation>판다</translation>
     </message>
     <message>
-        <location filename="../qt/sidebar.cc" line="87"/>
+        <location filename="../qt/sidebar.cc" line="89"/>
         <source>GPS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qt/sidebar.cc" line="87"/>
+        <location filename="../qt/sidebar.cc" line="89"/>
         <source>SEARCH</source>
         <translation></translation>
     </message>
