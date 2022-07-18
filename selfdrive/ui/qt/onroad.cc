@@ -987,8 +987,8 @@ void NvgWindow::drawDeviceState(QPainter &p) {
   str.sprintf("%.0f%%", freeSpacePercent);
   rect = QRect(x, y, w, w);
 
-  int r = interp<float>(freeSpacePercent, {90.f, 10.f}, {200.f, 255.f}, false);
-  int g = interp<float>(freeSpacePercent, {90.f, 10.f}, {255.f, 200.f}, false);
+  int r = interp<float>(freeSpacePercent, {10.f, 90.f}, {255.f, 200.f}, false);
+  int g = interp<float>(freeSpacePercent, {10.f, 90.f}, {200.f, 255.f}, false);
   p.setPen(QColor(r, g, 200, 200));
   p.drawText(rect, Qt::AlignCenter, str);
 
